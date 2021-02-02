@@ -110,6 +110,7 @@ ifeq ($(strip $(TRACKBALL_ENABLE)), yes)
     OPT_DEFS += -DTRACKBALL_ENABLE
     COMMON_VPATH += $(DRIVER_PATH)/trackball
     SRC += $(DRIVER_PATH)/trackball/pimoroni.c
+    QUANTUM_LIB_SRC += i2c_master.c
 endif
 
 ifeq ($(strip $(POINTING_DEVICE_ENABLE)), yes)

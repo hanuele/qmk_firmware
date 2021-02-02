@@ -36,6 +36,8 @@ extern LED_TYPE led[RGBLED_NUM];
 #endif
 
 void trackball_init(void) {
+    i2c_init();
+
     // The trackball may already have some stale data, so clear its registers
     input_t input;
     i2c_readReg(TRACKBALL_ADDRESS << 1, INPUT_REG, (uint8_t*)&input, sizeof(input), TRACKBALL_TIMEOUT);

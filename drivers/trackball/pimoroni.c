@@ -6,6 +6,7 @@
     #include "pointing_device.h"
 #endif
 #include "matrix.h"
+#include "keyboard.h"
 
 // See https://github.com/pimoroni/trackball-python/blob/master/library/trackball/__init__.py
 
@@ -36,6 +37,7 @@ extern LED_TYPE led[RGBLED_NUM];
 #endif
 
 void trackball_init(void) {
+    if (!is_keyboard_master()) return;
     i2c_init();
 
     // The trackball may already have some stale data, so clear its registers

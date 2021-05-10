@@ -1,3 +1,19 @@
+/* Copyright 2021 L. K. Post (crote)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "pimoroni.h"
 
 #include "i2c_master.h"
@@ -7,6 +23,7 @@
 #endif
 #include "matrix.h"
 #include "keyboard.h"
+#include "timer.h"
 
 // See https://github.com/pimoroni/trackball-python/blob/master/library/trackball/__init__.py
 
@@ -36,6 +53,8 @@ extern matrix_row_t matrix[MATRIX_ROWS];
 extern LED_TYPE led[RGBLED_NUM];
 #endif
 
+uint16_t update_timer;
+
 void trackball_init(void) {
     if (!is_keyboard_master()) return;
     i2c_init();
@@ -43,6 +62,7 @@ void trackball_init(void) {
     // The trackball may already have some stale data, so clear its registers
     input_t input;
     i2c_readReg(TRACKBALL_ADDRESS << 1, INPUT_REG, (uint8_t*)&input, sizeof(input), TRACKBALL_TIMEOUT);
+    update_timer = timer_read();
 
     // Clear the LED
     trackball_setrgb(0, 0, 0);
@@ -54,6 +74,11 @@ void trackball_task(void) {
 #ifdef TRACKBALL_RGBLIGHT
     trackball_setrgb(led[TRACKBALL_RGBLIGHT].r, led[TRACKBALL_RGBLIGHT].g, led[TRACKBALL_RGBLIGHT].b);
 #endif
+
+    if (timer_elapsed(update_timer) < TRACKBALL_INTERVAL) {
+        return;
+    }
+    update_timer = timer_read();
 
     uint8_t interrupt;
     status = i2c_readReg(TRACKBALL_ADDRESS << 1, INTERRUPT_REG, &interrupt, sizeof(interrupt), TRACKBALL_TIMEOUT);
@@ -108,26 +133,35 @@ void trackball_task(void) {
 #endif
 
 #ifdef POINTING_DEVICE_ENABLE
-    report_mouse_t currentReport = pointing_device_get_report();
-    bool send_report = false;
+    report_mouse_t mouse;
 
     if (record.type & TB_BUTTON) {
-        send_report = true;
+        mouse = pointing_device_get_report();
         if (record.pressed) {
-            currentReport.buttons |= TRACKBALL_MOUSE_BTN;
+            mouse.buttons |= TRACKBALL_MOUSE_BTN;
         } else {
-            currentReport.buttons &= ~TRACKBALL_MOUSE_BTN;
+            mouse.buttons &= ~TRACKBALL_MOUSE_BTN;
         }
+        pointing_device_set_report(mouse);
     }
 
     if (record.type & TB_MOVED) {
-        send_report = true;
-        currentReport.x += record.x;
-        currentReport.y += record.y;
-    }
-
-    if (send_report) {
-        pointing_device_set_report(currentReport);
+        mouse = pointing_device_get_report();
+        // The report may already contain unsend movement,
+        // so we need to take that into account.
+        record.x += mouse.x;
+        record.y += mouse.y;
+        // We need to send our movement in multiple reports,
+        // because a report has a range of -127..127,
+        // whereas our movement frequently exceeds that.
+        while (record.x != 0 || record.y != 0) {
+            mouse.x = record.x > 127 ? 127 : (record.x < -127 ? -127 : record.x);
+            mouse.y = record.y > 127 ? 127 : (record.y < -127 ? -127 : record.y);
+            record.x -= mouse.x;
+            record.y -= mouse.y;
+            pointing_device_set_report(mouse);
+            pointing_device_send();
+        }
     }
 #endif
 }

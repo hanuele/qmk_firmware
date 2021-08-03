@@ -16,6 +16,13 @@
 
 #pragma once
 
+/* USB Device descriptor parameter */
+#define VENDOR_ID       0xFEED
+#define PRODUCT_ID      0x0000
+#define DEVICE_VER      0x0001
+#define MANUFACTURER    splitkb
+#define PRODUCT         Kyria Keyboard
+
 #ifndef NO_DEBUG
 #define NO_DEBUG
 #endif // !NO_DEBUG
@@ -55,23 +62,20 @@
 
 // If you are using an Elite C rev3 on the slave side, uncomment the lines below:
 #define SPLIT_USB_DETECT
-#define NO_USB_STARTUP_CHECK
+#define SPLIT_USB_TIMEOUT 1000
+// Here you find the flash statements for left and right side. This is not necessary for all changes: https://github.com/foureight84/sofle-keyboard-pimoroni
+#define EE_HANDS
 
 // EC11K encoders have a different resolution than other EC11 encoders.
 // When using the default resolution of 4, if you notice your encoder skipping
 // every other tick, lower the resolution to 2.
 #define ENCODER_RESOLUTION 2
 
-// The Leader key allows to flexibly assign macros to key sequences.
-#define LEADER_PER_KEY_TIMING
-#define LEADER_TIMEOUT 350
-
 #define TAPPING_TERM 175
-
-// Allows to use either side as the master. Look at the documentation for info:
-// https://docs.qmk.fm/#/config_options?id=setting-handedness
-#define EE_HANDS
 
 // Allows media codes to properly register in macros and rotary encoder code
 #define TAP_CODE_DELAY 10
 
+#define IGNORE_MOD_TAP_INTERRUPT        
+
+//next will be pimoroni trackball integration.

@@ -28,5 +28,3 @@
     //Always send Escape if Alt is pressed
 #define GRAVE_ESC_CTRL_OVERRIDE
     //Always send Escape if Control is pressed
-
-#define TAPPING_TERM 180

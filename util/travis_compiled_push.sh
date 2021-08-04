@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 source util/travis_utils.sh
 source util/travis_push.sh

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 _qmk_install_prepare() {
     echo "Checking Homebrew installation"

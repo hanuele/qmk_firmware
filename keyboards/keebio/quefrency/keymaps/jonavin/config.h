@@ -35,11 +35,3 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     //Always send Escape if Alt is pressed
 #define GRAVE_ESC_CTRL_OVERRIDE
     //Always send Escape if Control is pressed
-
-#define TAPPING_TERM 180
-
-#ifdef RGBLIGHT_ENABLE
-    #define RGBLIGHT_LAYERS
-    #define RGBLIGHT_SLEEP
-#endif // RGBLIGHT_ENABLE
-

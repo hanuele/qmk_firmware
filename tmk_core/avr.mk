@@ -173,7 +173,7 @@ define EXEC_AVRDUDE
 		fi; \
 	}; \
 	USB= ;\
-	printf "Waiting for USB serial port - reset your controller now (Ctrl+C to cancel)"; \
+	printf "Detecting USB port, reset your controller now."; \
 	TMP1=`mktemp`; \
 	TMP2=`mktemp`; \
 	list_devices > $$TMP1; \

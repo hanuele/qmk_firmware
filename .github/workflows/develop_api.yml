@@ -7,7 +7,6 @@ on:
     paths:
     - 'keyboards/**'
     - 'layouts/community/**'
-  workflow_dispatch:
 
 jobs:
   api_data:

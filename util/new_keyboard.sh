@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # This script generates a new keyboard directory under keyboards/,
 # and copies the template files from quantum/template/ into it.

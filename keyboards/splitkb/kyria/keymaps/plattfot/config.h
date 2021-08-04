@@ -1,5 +1,4 @@
 /* Copyright 2019 Thomas Baart <thomas@splitkb.com>
- * Copyright 2020-2021 Fredrik Salomonsson <plattfot@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +37,4 @@
 #define LEADER_PER_KEY_TIMING
 #define LEADER_TIMEOUT 350
 
-// Remove the delay for the OSL keys. Not using any other tap keys.
-// Otherwise TAPPING_TERM_PER_KEY would be the way to go.
-#define TAPPING_TERM 0
-
+#define TAPPING_TERM 200

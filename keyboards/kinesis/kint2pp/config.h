@@ -32,12 +32,8 @@
 #define LED_COMPOSE_PIN C3
 #define LED_PIN_ON_STATE 0
 
-/* Well-worn Cherry MX key switches can bounce for up to 20ms, despite the
- * Cherry data sheet specifying 5ms. Because we use the sym_eager_pk debounce
- * algorithm, this debounce latency only affects key releases (not key
- * presses). */
-#undef DEBOUNCE
-#define DEBOUNCE 20
+/* Debounce reduces chatter (unintended double-presses) - set 0 if debouncing is not needed */
+#define DEBOUNCE 5
 
 #define IGNORE_MOD_TAP_INTERRUPT
 

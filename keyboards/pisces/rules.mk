@@ -23,3 +23,5 @@ AUDIO_ENABLE = no           # Audio output
 
 # Enable generic behavior for split boards
 SPLIT_KEYBOARD = yes
+
+LAYOUTS = split_3x6_1  # total 38

@@ -167,17 +167,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
 * |  Esc   |SpaceS|  AL  |  AU  |  AR  | Bspc |                              |  WL  |  ML  |  MU  |  MR  |  WR  | Mute   |
 * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-* |  Alt   |SpacCS| Numb |  AD  | Co/Pa|SelAll|AcCall|F12/F5|  | Talon| AltF4|Screen|  WD  |  MD  |  WU  |      | Logout |
+* |  Alt   |SpacCS| Numb |  AD  | Co/Pa|SelAll|AcCall|F12/F5|  | Talon|      |Screen|  WD  |  MD  |  WU  |      | Logout |
 * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
-*                        |      |GUI   |Layer |  LC  |  RC  |  |Onesht|  Tab | Enter|      |  LC  |
+*                        |Enpass|GUI   |Layer |  LC  |  RC  |  |Onesht|  Tab | Enter|      |  LC  |
 *                        |      |      |Dance |      |      |  | Mode | Save | WinA |      |      |
 *                        `----------------------------------'  `----------------------------------'
 */
 [_NAV] = LAYOUT(
 KC_MPLY, MEH(KC_W), C(KC_Y), URL, C(KC_Z), FIND, C(KC_W),S(C(KC_TAB)), KC_BTN3, C(KC_TAB), C(S(KC_T)), C(A(KC_DEL)),
 KC_ESC, MT(MOD_LSFT,KC_SPC), LEFTA, UPA, RIGHTA,DELETE, KC_WH_L, KC_MS_L, KC_MS_U, KC_MS_R, KC_WH_R, KC_MUTE,
-KC_LALT, MT(MOD_LCTL | MOD_LSFT, KC_SPC), LA_NUM1,DOWNA, COPY, C(KC_A), C(S(KC_S)), BROWSER, TALON,LALT(KC_F4),LSG(KC_S), KC_WH_D, KC_MS_D, KC_WH_U, _______, LSG(KC_L),
-_______, KC_LGUI, LAYER_DANCE, KC_BTN1, KC_BTN2, ONESHOT, SAVE, ENTER, _______, KC_BTN1
+KC_LALT, MT(MOD_LCTL | MOD_LSFT, KC_SPC), LA_NUM1,DOWNA, COPY, C(KC_A), C(S(KC_S)), BROWSER, TALON,_______,LSG(KC_S), KC_WH_D, KC_MS_D, KC_WH_U, _______, LSG(KC_L),
+C(A(KC_E)), KC_LGUI, LAYER_DANCE, KC_BTN1, KC_BTN2, ONESHOT, SAVE, ENTER, _______, KC_BTN1
 ),
 /* 
 * Base Layer: NEO2
@@ -1035,9 +1035,8 @@ void comma_finished(qk_tap_dance_state_t *state, void *user_data) {
 
             } else {
                 //I always start a new line after semi in most cases.
-                // send ";\n" (KC_DOT + shift → ";\n")
+                // send ";" (KC_DOT + shift → ";")
                 tap_code16(KC_COMMA);
-                tap_code(KC_ENT);
             }
             break;
         case TD_SINGLE_HOLD: register_code(KC_COMMA);break;

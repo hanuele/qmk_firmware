@@ -55,7 +55,8 @@
   #define RGBLIGHT_SAT_STEP 8
   #define RGBLIGHT_VAL_STEP 8
   #define RGBLIGHT_SLEEP
-  #define RGBLIGHT_LIMIT_VAL 150
+  #define RGBLIGHT_DEFAULT_VAL 200
+  #define RGBLIGHT_LIMIT_VAL 200
   #define RGBLIGHT_LAYERS
   #define RGBLIGHT_MAX_LAYERS 8
 #endif
@@ -78,4 +79,12 @@
 
 #define IGNORE_MOD_TAP_INTERRUPT        
 
-//next will be pimoroni trackball integration.
+//comment that out if your trackball is on the left side
+#define TRACKBALL_RIGHT
+
+#ifdef TRACKBALL_RIGHT
+    #define PIMORONI_TRACKBALL_INVERT_X
+    #define PIMORONI_TRACKBALL_INVERT_Y
+#endif
+
+#define TRACKBALL_ORIENTATION 3

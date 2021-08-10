@@ -18,13 +18,12 @@
  
  
  //Personal key codes for tab dances etc.
- #define LA_NUM1 LT(_NUMB, KC_BSPC)
- #define LA_NUM2 LT(_NUMB, KC_TAB)
- #define LA_NUM3 LT(_NUMB, KC_SCLN)
- #define LA_SYMB1 LT(_SYMB, KC_QUOT)
- #define LAYER_DANCE TD(TD_Layer)
- #define ONESHOT_LAYER TD(TD_OneshotLayer)
- #define ONESHOT_MOD TD(TD_OneshotMode)
+ #define LA_NUM1 LT(_NUMB, KC_E)
+ #define LA_NUM2 LT(_NUMB, KC_N)
+ #define LA_SYMB1 LT(_SYMB, KC_A)
+ #define LA_SYMB2 LT(_SYMB, KC_R)
+ #define LA_NAV1 LT(_NAV, KC_SPC)
+ #define LA_NAV2 LT(_NAV, KC_ENT)
  #define URL TD(TD_URL)
  #define FIND TD(TD_Find)
  #define LEFTA TD(TD_AL_WL)
@@ -37,7 +36,6 @@
  #define DELETE TD(TD_Bspc_Del_Delwl_Delwr)
  #define ONESHOT TD(TD_OneshotMode)
  #define SAVE TD(TD_Tab_CtrlS)
- #define ENTER TD(TD_Enter_CtrlAltTab)
  #define CAPSLOCK TD(TD_Caps)
  #define BRACES TD(TD_LBrace_Braces_Tag)
  #define PARENS TD(TD_LParen_Parens_Func)
@@ -47,3 +45,11 @@
  #define PERIOD TD(TD_Period)
  #define COMMA TD(TD_Comma)
  #define COMMENT TD(TD_COMMENT)
+ #define ONESHOT_MOD TD(TD_OneshotMode)
+ #define TOGGLE TG(1)
+ 
+ 
+ 
+ 
+
+

@@ -19,13 +19,18 @@
 //import own defined keycodes. this is a german layout. but importing the german header file did result in an error, so I skipped it and just translated the keys.
 #include "hanuele.h"
 
+#ifdef PIMORONI_TRACKBALL_ENABLE
+#include "pointing_device.h"
+#include "pimoroni_trackball.h"
+#endif
 
 // My layers
 enum layers {
-    _NAV = 0,
-    _NEO2,
+    _NEO2 = 0,
+    _NAV,
     _NUMB,
-    _SYMB
+    _SYMB,
+    _MOUS
 };
 
 enum keycodes {
@@ -35,7 +40,10 @@ enum keycodes {
     OS_ALT,
     OS_CMD,
     // Keycode for caps word (Code from https://github.com/andrewjrae/kyria-keymap#caps-word).
-    CAPS_WORD
+    CAPS_WORD,
+    MY_MOUSEBTN_1,
+    MY_MOUSEBTN_2,
+    MY_MOUSEBTN_3
 };
 // State for Caps word.     
 bool caps_word_on;
@@ -60,7 +68,6 @@ enum {
     TD_TO_TM_TT,
     TD_F12_F5,
     TD_Tab_CtrlS,
-    TD_Enter_CtrlAltTab,
     TD_Bspc_Del_Delwl_Delwr,
     TD_URL,
     TD_Period,
@@ -68,8 +75,6 @@ enum {
     TD_Caps,
     TD_Find,
     TD_OneshotMode,
-    TD_Layer,
-    TD_R, 
     TD_COMMENT 
 };
 
@@ -147,101 +152,214 @@ void save_reset(qk_tap_dance_state_t *state, void *user_data);
 void oneshotMode_finished(qk_tap_dance_state_t *state, void *user_data);
 void oneshotMode_reset(qk_tap_dance_state_t *state, void *user_data);
 
-void layer_finished(qk_tap_dance_state_t *state, void *user_data);
-void layer_reset(qk_tap_dance_state_t *state, void *user_data);
-
 void browser_finished(qk_tap_dance_state_t *state, void *user_data);
 void browser_reset(qk_tap_dance_state_t *state, void *user_data);
-
-void r_finished(qk_tap_dance_state_t *state, void *user_data);
-void r_reset(qk_tap_dance_state_t *state, void *user_data);
 
 void comment_finished(qk_tap_dance_state_t *state, void *user_data);
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-/* 
-* Base Layer: Navigation 
-* 
-* ,-------------------------------------------.                              ,-------------------------------------------.
-* |  Play  | Manic| Undo | URL  | Redo | Find |                              |CloseT| TabL |  MC  | TabR | ReoT |CtrlAltD|
-* |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
-* |  Esc   |SpaceS|  AL  |  AU  |  AR  | Bspc |                              |  WL  |  ML  |  MU  |  MR  |  WR  | Mute   |
-* |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-* |  Alt   |SpacCS| Numb |  AD  | Co/Pa|SelAll|AcCall|F12/F5|  | Talon|      |Screen|  WD  |  MD  |  WU  |      | Logout |
-* `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
-*                        |Enpass|GUI   |Layer |  LC  |  RC  |  |Onesht|  Tab | Enter|      |  LC  |
-*                        |      |      |Dance |      |      |  | Mode | Save | WinA |      |      |
-*                        `----------------------------------'  `----------------------------------'
-*/
-[_NAV] = LAYOUT(
-KC_MPLY, MEH(KC_W), C(KC_Y), URL, C(KC_Z), FIND, C(KC_W),S(C(KC_TAB)), KC_BTN3, C(KC_TAB), C(S(KC_T)), C(A(KC_DEL)),
-KC_ESC, MT(MOD_LSFT,KC_SPC), LEFTA, UPA, RIGHTA,DELETE, KC_WH_L, KC_MS_L, KC_MS_U, KC_MS_R, KC_WH_R, KC_MUTE,
-KC_LALT, MT(MOD_LCTL | MOD_LSFT, KC_SPC), LA_NUM1,DOWNA, COPY, C(KC_A), C(S(KC_S)), BROWSER, TALON,_______,LSG(KC_S), KC_WH_D, KC_MS_D, KC_WH_U, _______, LSG(KC_L),
-C(A(KC_E)), KC_LGUI, LAYER_DANCE, KC_BTN1, KC_BTN2, ONESHOT, SAVE, ENTER, _______, KC_BTN1
-),
+
 /* 
 * Base Layer: NEO2
 * 
 
 * ,-------------------------------------------.                              ,-------------------------------------------.
-* |        |   X  |   V  |   L  |   C  |   W  |                              |   K  |   H  |   G  |   F  |   Q  |        |
+* |  Play  |   X  |   V  |   L  |   C  |   W  |                              |   K  |   H  |   G  |   F  |   Q  |CtrlAltD|
 * |--------+------+------+------+------|------|                              |------+------+------+------+------+--------|
-* |        |   U  |Shft/I|   A  |   E  |   O  |                              |   S  |   N  |   R  |Shft/T|   D  |  Y de  |
+* |  Esc   |   U  |Shft/I|SYMB/A| NUM/E|   O  |                              |   S  | NUM/N|SYMB/R|Shft/T|   D  |  Y de  |
 * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-* |        | Ü de | Ö de | Ä de |   P  | Z de |      |      |  |      |      |   B  |   M  | ,  ; | .  : |   J  |  ß de  |
+* |  Alt   | Ü de | Ö de | Ä de |   P  | Z de |      |F12/F5|  | Talon|      |   B  |   M  | ,  ; | .  : |   J  |  ß de  |
 * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
-*                        |      |      | Space| Bspc | Caps |  |      |      | Enter| Bspc |      |
-*                        |      |      |      |      |      |  |      |      | Symb | Numb |      |
+*                        |Enpass|  TG1 | Space| Bspc | Caps |  |Onesht| Tab  | Enter|  LC  | GUI  |
+*                        |      |      | NAV  |      |      |  | Mode | Save | NAV  |      |      |
 *                        `----------------------------------'  `----------------------------------'
 */
 
 [_NEO2] = LAYOUT(
-_______, KC_X,KC_V,KC_L,KC_C,KC_W,KC_K,KC_H,KC_G,KC_F,KC_Q,_______,
-_______, KC_U,MT(MOD_LSFT,KC_I),KC_A,KC_E,KC_O,KC_S,KC_N,TD(TD_R),MT(MOD_LSFT,KC_T),KC_D,KC_Z,
-_______,KC_LBRC,LA_NUM3,LA_SYMB1,KC_P,KC_Y,_______,_______,_______,_______,KC_B,KC_M,COMMA,PERIOD,KC_J,KC_MINS,
-_______,_______,_______,DELETE ,CAPSLOCK ,_______,_______ ,LT(_SYMB,KC_ENT) ,LA_NUM1,_______
+KC_MPLY, KC_X,KC_V,KC_L,KC_C,KC_W,KC_K,KC_H,KC_G,KC_F,KC_Q,C(A(KC_DEL)),
+KC_ESC, KC_U,MT(MOD_LSFT,KC_I),LA_SYMB1,LA_NUM1,KC_O,KC_S,LA_NUM2,LA_SYMB2,MT(MOD_LSFT,KC_T),KC_D,KC_Z,
+KC_LALT,KC_LBRC,KC_SCLN,KC_QUOT,KC_P,KC_Y,XXXXXXX,BROWSER,TALON,XXXXXXX,KC_B,KC_M,COMMA,PERIOD,KC_J,KC_MINS,
+C(A(KC_E)),TOGGLE,LA_NAV1,DELETE ,CAPSLOCK ,ONESHOT, SAVE,LA_NAV2,MY_MOUSEBTN_1,KC_LGUI
 ),
+/* 
+* Base Layer: Navigation 
+* 
+* ,-------------------------------------------.                              ,-------------------------------------------.
+* |  Play  | Manic| Undo | URL  | Redo | Find |                              |CloseT| TabL |  MC  | TabR | ReoT |        |
+* |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
+* |  Esc   | Space|  AL  |  AU  |  AR  | Bspc |                              |  WL  |  ML  |  MU  |  MR  |  WR  | Mute   |
+* |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
+* |  Alt   |      |      |  AD  | Co/Pa|SelAll|      |      |  |      |      |Screen|  WD  |  MD  |  WU  |      | Logout |
+* `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
+*                        |      |      |  LC  |  RC  |      |  |      |      |  LC  | ENTER|      |
+*                        |      |      |      |      |      |  |      |      |      |      |      |
+*                        `----------------------------------'  `----------------------------------'
+*/
+[_NAV] = LAYOUT(
+_______, A(C(S(KC_W))), C(KC_Y), URL, C(KC_Z), FIND, C(KC_W),S(C(KC_TAB)), MY_MOUSEBTN_3, C(KC_TAB), C(S(KC_T)), _______,
+_______, MT(MOD_LSFT,KC_SPC), LEFTA, UPA, RIGHTA,DELETE, KC_WH_L, KC_MS_L, KC_MS_U, KC_MS_R, KC_WH_R, KC_MUTE,
+_______, _______, _______,DOWNA, COPY, C(KC_A), XXXXXXX, _______, _______,XXXXXXX,LSG(KC_S), KC_WH_D, KC_MS_D, KC_WH_U, _______, LSG(KC_L),
+_______, _______, MY_MOUSEBTN_1, MY_MOUSEBTN_2, _______, _______, _______,MY_MOUSEBTN_1, KC_ENT, _______
+),
+
 /*
-* Number Layer: Number keys
+* Number Layer: Number keys int 
 *
 * ,-------------------------------------------.                              ,-------------------------------------------.
-* |        |      | Undo |      | Redo |      |                              |  -   |  7   |  8   |  9   |   /  |        |
+* |        |      |      |      |      |      |                              |  -   |  7   |  8   |  9   |   /  |        |
 * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
-* |        |      |  AL  |  AU  |  AR  | Bspc |                              |  ,   |  4   |  5   |  6   |   *  |   =    |
+* |        |      |      |      |      |      |                              |  ,   |  4   |  5   |  6   |   *  |   =    |
 * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-* |        |      |      |  AD  | Co/Pa|      |      |      |  |      |      |  +   |  1   |  2   |  3   |   )  |        |
+* |        |      |      |      |      |      |      |      |  |      |      |  +   |  1   |  2   |  3   |   )  |        |
 * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
-*                        |      |      |      |      |      |  |      |      |  0   |  0   |  0   |
+*                        |      |      |      |      |      |  |      |      |      |  0   |  0   |
 *                        |      |      |      |      |      |  |      |      |      |      |      |
 *                        `----------------------------------'  `----------------------------------'
 */
 [_NUMB] = LAYOUT(
-_______, _______, C(KC_Y), _______, C(KC_Z), _______, KC_PMNS, KC_7, KC_8, KC_9, KC_PSLS, _______,
-_______, _______, LEFTA, UPA, RIGHTA, DELETE, KC_COMM, KC_4, KC_5, KC_6, KC_PAST, KC_PEQL,
-_______, _______, _______, DOWNA, COPY, _______, _______, _______, _______, _______, KC_RBRC, KC_1, KC_2, KC_3, S(KC_9), _______,
-_______, _______, _______, _______, _______, _______, _______, KC_0, KC_0, KC_0     
+XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_PMNS, KC_7, KC_8, KC_9, KC_PSLS, XXXXXXX,
+XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_COMM, KC_4, KC_5, KC_6, KC_PAST, KC_PEQL,
+XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_RBRC, KC_1, KC_2, KC_3, S(KC_9), _______,
+XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_0, KC_0, KC_0     
 ),
 /*
 * Symbol Layer: Symbols
 *
 * ,-------------------------------------------.                              ,-------------------------------------------.
-* |        |      |   `  |      |  ^   |      |                              |      |      |   =  |   &  |      |        |
+* |        |      |      |   `  |  ^   |      |                              |      |      |   =  |   &  |      |        |
 * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
 * |        |  \   |  /   |  {   |  }   |  *   |                              |   ?  |  (   |  )   |   -  |   @  |        |
 * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-* |        |  #   |  $   |  |   |  ~   |  `   |      |      |  |      |      |   +  |  %   |COMMEN|      |   €  |        |
+* |        |  #   |  $   |  |   |  '   |  `   |      |      |  |      |      |   +  |  %   |COMMEN|      |   €  |        |
 * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
-*                        |      |      |      |   '  |  "   |  |      |   !  |   _  |      |      |
+*                        |      |      |   "  |  ~   |      |  |      |   !  |   _  |      |      |
 *                        |      |      |      |      |      |  |      |      |      |      |      |
 *                        `----------------------------------'  `----------------------------------'
 */
 [_SYMB] = LAYOUT(
-_______, _______, KC_EQL, _______, KC_GRV, _______, _______, _______,S(KC_0), S(KC_6), _______,_______, 
+_______, _______, _______, KC_EQL, KC_GRV, _______, _______, _______,S(KC_0), S(KC_6), _______,_______, 
 _______, ALGR(KC_MINS), S(KC_7), BRACES, BRACESR, S(KC_RBRC), S(KC_MINS), PARENS, PARENSR, KC_SLSH, ALGR(KC_Q),_______,
-_______, KC_NUHS, S(KC_4), ALGR(KC_NUBS), ALGR(KC_RBRC), S(KC_EQL), _______, _______, _______, _______, KC_RBRC, S(KC_5),COMMENT ,_______, ALGR(KC_E), _______,
-_______, _______, _______,QUOTES ,S(KC_2), _______,  S(KC_1), S(KC_SLSH), _______, _______
+    _______, KC_NUHS, S(KC_4), ALGR(KC_NUBS), QUOTES, S(KC_EQL), XXXXXXX, _______, _______, XXXXXXX, KC_RBRC, S(KC_5),COMMENT ,_______, ALGR(KC_E), _______,
+    _______, _______, S(KC_2),ALGR(KC_RBRC), _______,_______,S(KC_1), S(KC_SLSH), _______, _______
+    ),
+/*
+* Mouse Layer: Mouse keys  
+*
+* ,-------------------------------------------.                              ,-------------------------------------------.
+* |        |      |      |      |      |      |                              |      |      |      |      |      |        |
+* |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
+* |        |      |      |      |      |      |                              |      |      |      |      |      |        |
+* |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
+* |        |      |      |      |      |      |      |      |  |      |      |      |      |      |      |      |        |
+* `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
+*                        |      |      |   LC |  RC  |  MC  |  |      |      |      |      |      |
+*                        |      |      |      |      |      |  |      |      |      |      |      |
+*                        `----------------------------------'  `----------------------------------'
+*/
+[_MOUS] = LAYOUT(
+XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+XXXXXXX, XXXXXXX, MY_MOUSEBTN_1, MY_MOUSEBTN_2, MY_MOUSEBTN_3, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX     
 ),
 };
+
+#ifdef PIMORONI_TRACKBALL_ENABLE
+// {{{
+#include "timer.h"
+#include "quantum/quantum.h"
+#include "i2c_master.h"
+
+static int16_t mouse_auto_layer_timer = 0;
+#define MOUSE_TIMEOUT 600
+#define TRACKBALL_TIMEOUT 5
+
+#define SIGN(x) ((x > 0) - (x < 0))
+
+//static bool rgb_changed = false;
+static uint8_t rgb_hue = 1;
+static uint8_t rgb_brightness = 1;
+static uint8_t rgb_sat = 255;
+
+void matrix_init_user() {
+    trackball_init();
+}
+
+void update_member(int8_t* member, int16_t* offset) {//{{{
+    if (*offset > 127) {
+        *member = 127;
+        *offset -= 127;
+    } else if (*offset < -127) {
+        *member = -127;
+        *offset += 127;
+    } else {
+        *member = *offset;
+        *offset = 0;
+    }
+}
+
+static int16_t x_offset = 0;
+static int16_t y_offset = 0;
+static int16_t v_offset = 0;
+static int16_t h_offset = 0;
+
+static int16_t tb_timer = 0;
+void pointing_device_task() {
+    report_mouse_t mouse = pointing_device_get_report();
+
+    if (trackball_get_interrupt() && (!tb_timer || timer_elapsed(tb_timer) > TRACKBALL_TIMEOUT)) {
+        tb_timer = timer_read() | 1;
+        
+        trackball_state_t state = trackball_get_state();
+
+        if (state.button_triggered) {
+            if(state.button_down) {
+                mouse.buttons |= MOUSE_BTN1;
+            } else {
+                mouse.buttons &= ~MOUSE_BTN1;
+            }  
+            pointing_device_set_report(mouse);
+            pointing_device_send();
+        } else {
+            if (layer_state_is(_SYMB)) {
+                h_offset += state.x;
+                v_offset -= state.y;
+ 
+            } else if (layer_state_is(_NUMB)) {
+                v_offset -= state.x;
+            } else if ((state.x || state.y) && !state.button_down) {
+
+                if (!mouse_auto_layer_timer && !layer_state_is(_NAV)) { 
+                    layer_on(_MOUS); 
+                } 
+                mouse_auto_layer_timer = timer_read() | 1;
+                uint8_t scale = 3;
+              
+                x_offset += state.x * state.x * SIGN(state.x) * scale;
+                y_offset += state.y * state.y * SIGN(state.y) * scale;
+
+            }
+        }
+
+    }
+
+    while (x_offset || y_offset || h_offset || v_offset) {
+        update_member(&mouse.x, &x_offset);
+        update_member(&mouse.y, &y_offset);
+
+        update_member(&mouse.v, &v_offset);
+        update_member(&mouse.h, &h_offset);
+
+        pointing_device_set_report(mouse);
+        pointing_device_send();
+    }
+
+}
+
+
+
+#endif
+
 // CAPS_WORD: A "smart" Caps Lock key that only capitalizes the next identifier you type
 // and then toggles off Caps Lock automatically when you're done.
 void caps_word_enable(void) {
@@ -300,10 +418,8 @@ uint16_t alt_tab_timer = 0;
 
 bool is_oneshot_cancel_key(uint16_t keycode) {
     switch (keycode) {
-        case LA_NUM1:
-        case LA_NUM2:
-        case LA_NUM3:
-        case LA_SYMB1:
+        case LA_NAV2:
+        case LA_NAV1:
         return true;
     default:
         return false;
@@ -312,13 +428,17 @@ bool is_oneshot_cancel_key(uint16_t keycode) {
 
 bool is_oneshot_ignored_key(uint16_t keycode) {
     switch (keycode) {
-        case LAYER_DANCE:
+        case LA_SYMB1:
+        case LA_SYMB2:
+        case LA_NUM1:
+        case LA_NUM2:
         case ONESHOT_MOD:
         case KC_LSFT:
+        case TOGGLE:
         case OS_SHFT:
         case OS_CTRL:
         case OS_ALT:
-        case OS_CMD:        
+        case OS_CMD: 
             return true;
         default:
             return false;
@@ -339,7 +459,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     update_oneshot(&os_cmd_state, KC_LGUI, OS_CMD,keycode, record);
     
     process_caps_word(keycode, record);
-
+    report_mouse_t currentReport = {};
     switch (keycode) {
         case CAPS_WORD:
             // Toggle `caps_word_on`
@@ -347,7 +467,52 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 if (caps_word_on) {caps_word_disable(); return false;} 
                 else {caps_word_enable(); return false;}
             }
-            break;  
+            break;
+        case MY_MOUSEBTN_1:
+            if(!layer_state_is(_MOUS)){
+                record->event.pressed?register_code(KC_BTN1):unregister_code(KC_BTN1);
+            }else{
+                currentReport = pointing_device_get_report();
+                if (record->event.pressed) {
+                    currentReport.buttons |= MOUSE_BTN1;
+                }
+                else {
+                    currentReport.buttons &= ~MOUSE_BTN1;
+                }
+                pointing_device_set_report(currentReport);
+                return false;
+            }
+            break;
+        case MY_MOUSEBTN_2:
+            if(!layer_state_is(_MOUS)){
+                record->event.pressed?register_code(KC_BTN2):unregister_code(KC_BTN2);
+            }else{
+                currentReport = pointing_device_get_report();
+                if (record->event.pressed) {
+                    currentReport.buttons |= MOUSE_BTN2;
+                }
+                else {
+                    currentReport.buttons &= ~MOUSE_BTN2;
+                }
+                pointing_device_set_report(currentReport);
+                return false;
+            }
+            break;
+        case MY_MOUSEBTN_3:
+            if(!layer_state_is(_MOUS)){
+                record->event.pressed?register_code(KC_BTN3):unregister_code(KC_BTN3);
+            }else{
+                currentReport = pointing_device_get_report();
+                if (record->event.pressed) {
+                    currentReport.buttons |= MOUSE_BTN3;
+                }
+                else {
+                    currentReport.buttons &= ~MOUSE_BTN3;
+                }
+                pointing_device_set_report(currentReport);
+                return false;
+            }
+            break;
     }
     update_mode_rgb();
     return true;
@@ -365,57 +530,55 @@ void update_mode_rgb(void) {
 }
 
 void matrix_scan_user(void) {
-if (is_alt_tab_active) {
-if (timer_elapsed(alt_tab_timer) > 1000) {
-unregister_code(KC_LALT);
-is_alt_tab_active = false;
-}
-}
+    if (is_alt_tab_active) {
+        if (timer_elapsed(alt_tab_timer) > 1000) {
+            unregister_code(KC_LALT);
+            is_alt_tab_active = false;
+        }
+    }
+    if (mouse_auto_layer_timer && timer_elapsed(mouse_auto_layer_timer) > MOUSE_TIMEOUT) {
+         report_mouse_t rep = pointing_device_get_report();
+         if (rep.buttons) { return; } 
+         layer_off(_MOUS); 
+         mouse_auto_layer_timer = 0; 
+    } 
 }
 
+bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
+    if ((keycode < KC_BTN1 || keycode > KC_BTN5) 
+            && layer_state_is(_MOUS) 
+            && record->event.pressed) { 
+        layer_off(_MOUS); 
+        mouse_auto_layer_timer = 0; 
+     } 
+    return true;
+}
 
 #ifdef OLED_DRIVER_ENABLE
 void suspend_power_down_user() {
-oled_clear();
-oled_off();
+    oled_clear();
+    oled_off();
 }
 
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-return OLED_ROTATION_180;
-}
-
-
-static void render_qmk_logo(void) {
-static const char PROGMEM qmk_logo[] = {
-0x80,0x81,0x82,0x83,0x84,0x85,0x86,0x87,0x88,0x89,0x8a,0x8b,0x8c,0x8d,0x8e,0x8f,0x90,0x91,0x92,0x93,0x94,
-0xa0,0xa1,0xa2,0xa3,0xa4,0xa5,0xa6,0xa7,0xa8,0xa9,0xaa,0xab,0xac,0xad,0xae,0xaf,0xb0,0xb1,0xb2,0xb3,0xb4,
-0xc0,0xc1,0xc2,0xc3,0xc4,0xc5,0xc6,0xc7,0xc8,0xc9,0xca,0xcb,0xcc,0xcd,0xce,0xcf,0xd0,0xd1,0xd2,0xd3,0xd4,0};
-
-oled_write_P(qmk_logo, false);
+    return OLED_ROTATION_180;
 }
 
 static void render_status(void) {
-    // QMK Logo and version information
-    render_qmk_logo();
-    oled_write_P(PSTR("Kyria PLO\n\n"), false);
+
+    oled_write_P(PSTR("PLO\n\n"), false);
 
     // Host Keyboard Layer Status
     oled_write_P(PSTR("Layer: "), false);
     switch (get_highest_layer(layer_state)) {
+        case _NEO2:
+            oled_write_P(PSTR("Neo\n"), false);break;
         case _NAV:
-            oled_write_P(PSTR("Navigation\n"), false);
-        break;
-    case _NEO2:
-        oled_write_P(PSTR("Neo2\n"), false);
-        break;
-    case _SYMB:
-        oled_write_P(PSTR("Symbols\n"), false);
-        break;
-    case _NUMB:
-        oled_write_P(PSTR("Numbers\n"), false);
-        break;
-    default:
-        oled_write_P(PSTR("Undefined\n"), false);
+            oled_write_P(PSTR("Nav\n"), false);break;
+        case _SYMB:
+            oled_write_P(PSTR("Sym\n"), false);break;
+        case _NUMB:
+            oled_write_P(PSTR("Num\n"), false);break;
     }
     // Host Keyboard Mod Status
     uint8_t mods = get_mods() | get_weak_mods();
@@ -425,10 +588,8 @@ static void render_status(void) {
     oled_write_P((mods & MOD_MASK_SHIFT) ? PSTR("SHFT ") : PSTR("     "), false);
 
     // Host Keyboard LED Status
-    uint8_t led_usb_state = host_keyboard_leds();
-    oled_write_P(IS_LED_ON(led_usb_state, USB_LED_NUM_LOCK) ? PSTR("NUMLCK ") : PSTR("       "), false);
-    oled_write_P(IS_LED_ON(led_usb_state, USB_LED_CAPS_LOCK) ? PSTR("CAPLCK ") : PSTR("       "), false);
-    oled_write_P(IS_LED_ON(led_usb_state, USB_LED_SCROLL_LOCK) ? PSTR("SCRLCK ") : PSTR("       "), false);
+    //uint8_t led_usb_state = host_keyboard_leds();
+    //oled_write_P(IS_LED_ON(led_usb_state, USB_LED_CAPS_LOCK) ? PSTR("CAPLCK ") : PSTR("       "), false);
 }
 
 void oled_task_user(void) {
@@ -441,20 +602,22 @@ void oled_task_user(void) {
 #endif
 
 #ifdef RGBLIGHT_LAYERS
-const rgblight_segment_t PROGMEM nav_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_BLUE});
 const rgblight_segment_t PROGMEM neo2_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_MAGENTA});
+const rgblight_segment_t PROGMEM nav_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_BLUE});
 const rgblight_segment_t PROGMEM symb_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_GREEN});
 const rgblight_segment_t PROGMEM num_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_RED});
+const rgblight_segment_t PROGMEM mous_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_WHITE});
 const rgblight_segment_t PROGMEM shift_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_GOLD});
 const rgblight_segment_t PROGMEM ctrl_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_ORANGE});
 const rgblight_segment_t PROGMEM alt_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_SPRINGGREEN});
 const rgblight_segment_t PROGMEM gui_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_TURQUOISE});
 
 const rgblight_segment_t* const PROGMEM my_rgb_layers[] = RGBLIGHT_LAYERS_LIST(
-    nav_layers,
     neo2_layers,
+    nav_layers, 
     num_layers,
     symb_layers,
+    mous_layers,
     shift_layers,
     ctrl_layers,
     alt_layers,
@@ -468,20 +631,51 @@ void keyboard_post_init_keymap(void) {
 #endif
 
 void keyboard_post_init_user(void) {
-    rgblight_sethsv_noeeprom(HSV_BLUE);
+    rgblight_sethsv_noeeprom(HSV_MAGENTA);
 #ifdef RGBLIGHT_LAYERS
     rgblight_layers = my_rgb_layers;
 #else
     rgblight_sethsv_noeeprom(HSV_BLUE);
 #endif
+#ifdef PIMORONI_TRACKBALL_ENABLE
+    rgb_hue = rgblight_get_hue();
+    rgb_brightness = rgblight_get_val();
+    rgb_sat = rgblight_get_sat();
+    trackball_set_hsv(rgb_hue, rgb_sat, rgb_brightness);
+#endif
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
 #ifdef RGBLIGHT_LAYERS
-    for (int i = _NAV; i < 4; i++) {
+    for (int i = _NEO2; i < 5; i++) {
         rgblight_set_layer_state(i, layer_state_cmp(state, i));
     }
 #endif
+#ifdef PIMORONI_TRACKBALL_ENABLE
+    uint8_t layer = get_highest_layer(state);
+    switch(layer) {
+        case _NEO2:
+            trackball_set_rgbw(rgb_brightness,0,rgb_brightness, 0);
+            break;
+        case _NAV:
+            trackball_set_rgbw(0, 0, rgb_brightness, 0);
+            break;
+        case _SYMB:
+            trackball_set_rgbw(0, rgb_brightness, 0, 0);
+            break;
+        case _NUMB:
+            trackball_set_rgbw(rgb_brightness,0,  0, 0);
+            break;
+        case _MOUS:
+            trackball_set_rgbw(rgb_brightness,0,  0, rgb_brightness);
+            break;
+        default:
+            trackball_set_hsv(rgb_hue, rgb_sat, rgb_brightness);
+            break;
+    }
+
+#endif
+
     return state;
 }
 
@@ -491,7 +685,6 @@ bool encoder_update_user(uint8_t index, bool clockwise){
     if (index == 0) {
         switch (biton32(layer_state)) {
             case _NEO2:
-    
                 if (!(mod_state & MOD_MASK_SHIFT)) {
                 // History scrubbing.
                     if (clockwise) {
@@ -553,7 +746,7 @@ bool encoder_update_user(uint8_t index, bool clockwise){
         switch (biton32(layer_state)) {
             case _NEO2:
                 // Scrolling with PageUp and PgDn.
-                if (clockwise) {
+                if (!clockwise) {
                     tap_code(KC_PGDN);
                 } else {
                     tap_code(KC_PGUP);
@@ -563,14 +756,14 @@ bool encoder_update_user(uint8_t index, bool clockwise){
                 //using shift to enable more functionalit on the same layer
                 if (!(mod_state & MOD_MASK_SHIFT)) {
                     // Zoom
-                    if (clockwise) {
+                    if (!clockwise) {
                         tap_code16(C(KC_PPLS));
                     } else {
                         tap_code16(C(KC_PMNS));
                     }
                 } else {
                     //tab navigation in chromium based browsers
-                    if (clockwise) {
+                    if (!clockwise) {
                         tap_code16(C(KC_TAB));                       
                     } else {
                         //as shift is activated, i deactivate it,  then tap ctrl tab then activate shift again.
@@ -583,7 +776,7 @@ bool encoder_update_user(uint8_t index, bool clockwise){
                 break;    
             default:
                 // Volume control.
-                if (clockwise) {
+                if (!clockwise) {
                     tap_code(KC_VOLU);
                 } else {
                     tap_code(KC_VOLD);
@@ -594,6 +787,7 @@ bool encoder_update_user(uint8_t index, bool clockwise){
     return true;
 }
 
+#endif
 /* Return an integer that corresponds to what kind of tap dance should be executed.
 *
 * How to figure out tap dance state: interrupted and pressed.
@@ -655,14 +849,14 @@ void copy_finished(qk_tap_dance_state_t *state, void *user_data) {
     switch (xtap_state.state) {
         //use register_code for basic keys and register_code16 for nonbasic keys
         case TD_SINGLE_TAP: register_code16(C(KC_C)); break;//copy
-        case TD_SINGLE_HOLD: register_code16(LGUI(KC_V)); break;//win paste
-        case TD_DOUBLE_HOLD: register_code16(C(KC_X)); break;//cut
+        case TD_DOUBLE_HOLD: register_code16(LGUI(KC_V)); break;//win paste
+        case TD_SINGLE_HOLD: register_code16(C(KC_X)); break;//cut
         case TD_DOUBLE_TAP:register_code16(C(KC_V)); break;//paste
         // Last case is for fast typing. Assuming your key is `f`:
         // For example, when typing the word `buffer`, and you want to make sure that you send `ff` and not `Esc`.
         // In order to type `ff` when typing fast, the next character will have to be hit within the `TAPPING_TERM`, which by default is 200ms.
         case TD_DOUBLE_SINGLE_TAP:break;
-        case TD_TRIPLE_TAP: tap_code16(C(S(KC_B)));break;//my shortcut for enpass
+        case TD_TRIPLE_TAP:break;
         case TD_UNKNOWN: break;
         case TD_NONE: break;
     }
@@ -671,8 +865,8 @@ void copy_finished(qk_tap_dance_state_t *state, void *user_data) {
 void copy_reset(qk_tap_dance_state_t *state, void *user_data) {
     switch (xtap_state.state) {
         case TD_SINGLE_TAP: unregister_code16(C(KC_C)); break;
-        case TD_SINGLE_HOLD: unregister_code16(LGUI(KC_V)); break;
-        case TD_DOUBLE_HOLD: unregister_code16(C(KC_X)); break;
+        case TD_DOUBLE_HOLD: unregister_code16(LGUI(KC_V)); break;
+        case TD_SINGLE_HOLD: unregister_code16(C(KC_X)); break;
         case TD_DOUBLE_TAP: unregister_code16(C(KC_V)); break;
         case TD_DOUBLE_SINGLE_TAP: break;
         case TD_TRIPLE_TAP: break;
@@ -690,7 +884,7 @@ void paren_finishedl(qk_tap_dance_state_t *state, void *user_data) {
         case TD_SINGLE_HOLD: SEND_STRING("[]" SS_TAP(X_LEFT)); break;
         case TD_DOUBLE_TAP: register_code16(S(KC_8)); break; 
         case TD_DOUBLE_SINGLE_TAP: tap_code16(S(KC_8)); register_code16(S(KC_8));break;
-        case TD_TRIPLE_TAP: SEND_STRING("(){" SS_TAP(X_ENTER) SS_TAP(X_ENTER) "}" SS_TAP(X_LEFT) SS_TAP(X_UP) SS_TAP(X_TAB)); break;
+        case TD_TRIPLE_TAP:break;
         case TD_UNKNOWN: break;
         case TD_NONE: break;
     }
@@ -799,9 +993,9 @@ void au_finished(qk_tap_dance_state_t *state, void *user_data) {
     switch (xtap_state.state) {
         case TD_SINGLE_TAP: register_code(KC_UP); break;
         case TD_SINGLE_HOLD: register_code(KC_PGUP); break;
-        case TD_DOUBLE_TAP: break;
+        case TD_DOUBLE_TAP: tap_code(KC_UP);register_code(KC_UP);break;
         case TD_DOUBLE_HOLD: register_code(KC_HOME); break;
-        case TD_DOUBLE_SINGLE_TAP: break;
+        case TD_DOUBLE_SINGLE_TAP: tap_code(KC_UP);register_code(KC_UP);break;
         case TD_TRIPLE_TAP: break;
         case TD_UNKNOWN: break;
         case TD_NONE: break;
@@ -812,9 +1006,9 @@ void au_reset(qk_tap_dance_state_t *state, void *user_data) {
     switch (xtap_state.state) {
         case TD_SINGLE_TAP: unregister_code(KC_UP); break;
         case TD_SINGLE_HOLD: unregister_code(KC_PGUP); break;
-        case TD_DOUBLE_TAP: break;
+        case TD_DOUBLE_TAP: unregister_code(KC_UP); break;
         case TD_DOUBLE_HOLD: unregister_code(KC_HOME); break;
-        case TD_DOUBLE_SINGLE_TAP: break;
+        case TD_DOUBLE_SINGLE_TAP: unregister_code(KC_UP); break;
         case TD_TRIPLE_TAP: break;
         case TD_UNKNOWN: break;
         case TD_NONE: break;
@@ -827,9 +1021,9 @@ void ad_finished(qk_tap_dance_state_t *state, void *user_data) {
     switch (xtap_state.state) {
         case TD_SINGLE_TAP: register_code(KC_DOWN); break;
         case TD_SINGLE_HOLD: register_code(KC_PGDOWN); break;
-        case TD_DOUBLE_TAP: break;
+        case TD_DOUBLE_TAP: tap_code(KC_DOWN);register_code(KC_DOWN);break;
         case TD_DOUBLE_HOLD: register_code(KC_END); break;
-        case TD_DOUBLE_SINGLE_TAP: break;
+        case TD_DOUBLE_SINGLE_TAP: tap_code(KC_DOWN);register_code(KC_DOWN);break;
         case TD_TRIPLE_TAP: break;
         case TD_UNKNOWN: break;
         case TD_NONE: break;
@@ -840,9 +1034,9 @@ void ad_reset(qk_tap_dance_state_t *state, void *user_data) {
     switch (xtap_state.state) {
         case TD_SINGLE_TAP: unregister_code(KC_DOWN); break;
         case TD_SINGLE_HOLD: unregister_code(KC_PGDOWN); break;
-        case TD_DOUBLE_TAP: break;
+        case TD_DOUBLE_TAP: unregister_code(KC_DOWN); break;
         case TD_DOUBLE_HOLD: unregister_code(KC_END); break;
-        case TD_DOUBLE_SINGLE_TAP: break;
+        case TD_DOUBLE_SINGLE_TAP: unregister_code(KC_DOWN); break;
         case TD_TRIPLE_TAP: break;
         case TD_UNKNOWN: break;
         case TD_NONE: break;
@@ -858,7 +1052,7 @@ void quotes_finished(qk_tap_dance_state_t *state, void *user_data) {
         case TD_DOUBLE_TAP: register_code16(S(KC_NUHS)); break;
         case TD_DOUBLE_HOLD: register_code16(S(KC_2)); break;
         case TD_DOUBLE_SINGLE_TAP: tap_code16(S(KC_NUHS)); register_code16(S(KC_NUHS));break;
-        case TD_TRIPLE_TAP: tap_code16(S(KC_NUHS));tap_code16(C(KC_V));SEND_STRING("', --"); break;//custom code for packaging
+        case TD_TRIPLE_TAP: tap_code(KC_COMMA);tap_code16(S(KC_NUHS));tap_code16(C(KC_V));SEND_STRING("' --"); break;//custom code for packaging
         case TD_UNKNOWN: break;
         case TD_NONE: break;
     }
@@ -881,8 +1075,8 @@ void quotes_reset(qk_tap_dance_state_t *state, void *user_data) {
 void talon_finished(qk_tap_dance_state_t *state, void *user_data) {
     xtap_state.state = cur_dance(state);
     switch (xtap_state.state) {
-        case TD_SINGLE_TAP: tap_code16(A(C(KC_COMM))); break;
-        case TD_SINGLE_HOLD: tap_code16(A(C(S(KC_0)))); break;
+        case TD_SINGLE_TAP: register_code16(A(C(KC_COMM))); break;
+        case TD_SINGLE_HOLD: register_code16(A(C(S(KC_0)))); break;
         case TD_DOUBLE_TAP: break;
         case TD_DOUBLE_HOLD: break;
         case TD_DOUBLE_SINGLE_TAP: break;
@@ -890,7 +1084,21 @@ void talon_finished(qk_tap_dance_state_t *state, void *user_data) {
         case TD_UNKNOWN: break;
         case TD_NONE: break;
     }
-}              
+}     
+
+void talon_reset(qk_tap_dance_state_t *state, void *user_data) {
+    switch (xtap_state.state) {
+        case TD_SINGLE_TAP: unregister_code16(A(C(KC_COMM))); break;
+        case TD_SINGLE_HOLD: unregister_code16(A(C(S(KC_0)))); break;
+        case TD_DOUBLE_TAP: break;
+        case TD_DOUBLE_HOLD: break;
+        case TD_DOUBLE_SINGLE_TAP: break;
+        case TD_TRIPLE_TAP: break;
+        case TD_UNKNOWN: break;
+        case TD_NONE: break;
+    }
+     xtap_state.state = TD_NONE;
+}         
 
 void del_finished(qk_tap_dance_state_t *state, void *user_data) {
     xtap_state.state = cur_dance(state);
@@ -955,32 +1163,18 @@ void url_finished(qk_tap_dance_state_t *state, void *user_data) {
     xtap_state.state = cur_dance(state);
     switch (xtap_state.state) {
         //replace the last unique identifier from the url with the selected one.
-        case TD_DOUBLE_TAP: tap_code16(C(KC_C));tap_code16(C(KC_L));tap_code(KC_RIGHT);tap_code16(C(KC_BSPC));tap_code16(C(KC_BSPC));tap_code16(C(KC_BSPC));tap_code16(C(KC_BSPC));tap_code16(C(KC_BSPC));tap_code16(C(KC_V));break;
+        case TD_DOUBLE_TAP: break;// tap_code16(C(KC_C));tap_code16(C(KC_L));tap_code(KC_RIGHT);tap_code16(C(KC_BSPC));tap_code16(C(KC_BSPC));tap_code16(C(KC_BSPC));tap_code16(C(KC_BSPC));tap_code16(C(KC_BSPC));tap_code16(C(KC_V));tap_code(KC_ENTER);break;
         //extract the last unique identifier from the url. I use this for programming in my environment.
-        case TD_SINGLE_TAP: tap_code16(C(KC_L));tap_code(KC_RIGHT);tap_code16(C(S(KC_LEFT)));tap_code16(C(S(KC_LEFT)));tap_code16(C(S(KC_LEFT)));tap_code16(C(S(KC_LEFT)));tap_code16(C(S(KC_LEFT)));tap_code16(C(KC_C));tap_code(KC_ENTER);break;
+        case TD_SINGLE_TAP: tap_code16(C(KC_L));tap_code(KC_RIGHT);tap_code16(C(S(KC_LEFT)));tap_code16(C(S(KC_LEFT)));tap_code16(C(S(KC_LEFT)));tap_code16(C(S(KC_LEFT)));tap_code16(C(S(KC_LEFT)));tap_code16(C(KC_C));break;
         //go to the root page of the crossloom app.
         case TD_SINGLE_HOLD: tap_code16(C(KC_L));tap_code(KC_RIGHT);tap_code16(C(KC_BSPC));tap_code16(C(KC_BSPC));tap_code16(C(KC_BSPC));tap_code16(C(KC_BSPC));tap_code16(C(KC_BSPC));tap_code16(C(KC_BSPC));tap_code16(C(KC_BSPC));tap_code16(C(KC_BSPC));tap_code16(C(KC_BSPC));tap_code16(C(KC_BSPC));tap_code16(C(KC_BSPC));SEND_STRING("2251c0e2-73da-4b44-9672-19a27e19d333/object/00000000-0000-0000-0000-000000000000" SS_TAP(X_ENTER));break;
-        case TD_DOUBLE_HOLD: register_code16(C(KC_L));break;//jump to url in chromium based browser
+        case TD_DOUBLE_HOLD: break;
         case TD_DOUBLE_SINGLE_TAP: break;
         case TD_TRIPLE_TAP: break;
         case TD_UNKNOWN: break;
         case TD_NONE: break;
     }
 }              
-
-void url_reset(qk_tap_dance_state_t *state, void *user_data) {
-    switch (xtap_state.state) {
-        case TD_SINGLE_TAP:break;
-        case TD_SINGLE_HOLD: break;
-        case TD_DOUBLE_TAP: break;
-        case TD_DOUBLE_HOLD: unregister_code16(C(KC_L));break;
-        case TD_DOUBLE_SINGLE_TAP:break;
-        case TD_TRIPLE_TAP: break;
-        case TD_UNKNOWN: break;
-        case TD_NONE: break;
-    }
-    xtap_state.state = TD_NONE;
-}
 
 void period_finished(qk_tap_dance_state_t *state, void *user_data) {
     xtap_state.state = cur_dance(state);
@@ -1034,7 +1228,6 @@ void comma_finished(qk_tap_dance_state_t *state, void *user_data) {
                 tap_code(KC_SPC);
 
             } else {
-                //I always start a new line after semi in most cases.
                 // send ";" (KC_DOT + shift → ";")
                 tap_code16(KC_COMMA);
             }
@@ -1105,7 +1298,7 @@ void find_finished(qk_tap_dance_state_t *state, void *user_data) {
         case TD_SINGLE_HOLD: tap_code16(C(KC_C));tap_code16(C(S(KC_NUBS)));tap_code16(C(KC_V));tap_code(KC_ENTER);break;//custom global search for selected text
         case TD_DOUBLE_HOLD: tap_code16(C(KC_C));tap_code16(C(KC_F));tap_code16(C(KC_V));tap_code(KC_ENTER);break;//search for selected text
         case TD_DOUBLE_SINGLE_TAP: break;
-        case TD_TRIPLE_TAP: tap_code16(C(KC_F));SEND_STRING("/\\b[0-9a-f]{8}\\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\\b[0-9a-f]{12}\\b/" SS_TAP(X_ENTER) );break;//search for unique identifier regex in codemirror search
+        case TD_TRIPLE_TAP: break;// tap_code16(C(KC_F));SEND_STRING("/\\b[0-9a-f]{8}\\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\\b[0-9a-f]{12}\\b/" SS_TAP(X_ENTER) );break;//search for unique identifier regex in codemirror search
         case TD_UNKNOWN: break;
         case TD_NONE: break;
     }
@@ -1133,7 +1326,7 @@ void save_finished(qk_tap_dance_state_t *state, void *user_data) {
         case TD_DOUBLE_TAP: tap_code16(C(KC_DOT));break;//custom shortcut save test
         case TD_DOUBLE_HOLD: tap_code16(C(KC_A));tap_code16(S(KC_TAB));break;//custom shortcut make pretty
         case TD_DOUBLE_SINGLE_TAP: tap_code(KC_TAB);register_code(KC_TAB);break;
-        case TD_TRIPLE_TAP: tap_code16(C(KC_A));tap_code16(S(KC_TAB));tap_code16(C(KC_S));break;//custom shortcut make pretty, save
+        case TD_TRIPLE_TAP: break;
         case TD_UNKNOWN: break;
         case TD_NONE: break;
     }
@@ -1160,9 +1353,9 @@ keyrecord_t released = {{{0,0},false,0}, {0,0,0,0,0}};
 void oneshotMode_finished(qk_tap_dance_state_t *state, void *user_data) {
     xtap_state.state = cur_dance(state);
     switch (xtap_state.state) {
-        case TD_SINGLE_TAP: update_oneshot(&os_shft_state, KC_LSFT, OS_SHFT,OS_SHFT, &pressed);break;
-        case TD_DOUBLE_TAP: update_oneshot(&os_ctrl_state, KC_LCTL, OS_CTRL,OS_CTRL, &pressed);break;
-        case TD_SINGLE_HOLD: update_oneshot(&os_alt_state, KC_LALT, OS_ALT,OS_ALT, &pressed);break;
+        case TD_DOUBLE_TAP: update_oneshot(&os_shft_state, KC_LSFT, OS_SHFT,OS_SHFT, &pressed);break;
+        case TD_SINGLE_HOLD: update_oneshot(&os_ctrl_state, KC_LCTL, OS_CTRL,OS_CTRL, &pressed);break;
+        case TD_SINGLE_TAP: update_oneshot(&os_alt_state, KC_LALT, OS_ALT,OS_ALT, &pressed);break;
         case TD_DOUBLE_HOLD: update_oneshot(&os_cmd_state, KC_LGUI, OS_CMD,OS_CMD, &pressed);break;
         case TD_DOUBLE_SINGLE_TAP: break;
         case TD_TRIPLE_TAP: update_oneshot(&os_ctrl_state, KC_LCTL, OS_CTRL,OS_CTRL, &pressed);update_oneshot(&os_ctrl_state, KC_LCTL, OS_CTRL,OS_CTRL, &pressed);break;
@@ -1175,68 +1368,12 @@ void oneshotMode_finished(qk_tap_dance_state_t *state, void *user_data) {
 
 void oneshotMode_reset(qk_tap_dance_state_t *state, void *user_data) {
     switch (xtap_state.state) {
-        case TD_SINGLE_TAP: update_oneshot(&os_shft_state, KC_LSFT, OS_SHFT,OS_SHFT, &released);break;
-        case TD_SINGLE_HOLD: update_oneshot(&os_alt_state, KC_LALT, OS_ALT,OS_ALT, &released);break;
-        case TD_DOUBLE_TAP: update_oneshot(&os_ctrl_state, KC_LCTL, OS_CTRL,OS_CTRL, &released);break;
+        case TD_DOUBLE_TAP: update_oneshot(&os_shft_state, KC_LSFT, OS_SHFT,OS_SHFT, &released);break;
+        case TD_SINGLE_TAP: update_oneshot(&os_alt_state, KC_LALT, OS_ALT,OS_ALT, &released);break;
+        case TD_SINGLE_HOLD: update_oneshot(&os_ctrl_state, KC_LCTL, OS_CTRL,OS_CTRL, &released);break;
         case TD_DOUBLE_HOLD: update_oneshot(&os_cmd_state, KC_LGUI, OS_CMD,OS_CMD, &released);break;
         case TD_DOUBLE_SINGLE_TAP: break;
         case TD_TRIPLE_TAP: update_oneshot(&os_ctrl_state, KC_LCTL, OS_CTRL,OS_CTRL, &released);update_oneshot(&os_ctrl_state, OS_SHFT, OS_SHFT,OS_CTRL, &released);break;
-        case TD_UNKNOWN: break;
-        case TD_NONE: break;
-    }
-    xtap_state.state = TD_NONE;
-}
-
-//this dance lets me switch to each layer from each other layer. 
-void layer_finished(qk_tap_dance_state_t *state, void *user_data) {
-    xtap_state.state = cur_dance(state);
-    switch (xtap_state.state) {
-        case TD_SINGLE_TAP:
-            if (layer_state_is(_SYMB)) {layer_off(_SYMB);layer_off(_NUMB);layer_on(_NEO2);}
-            else {
-                if(layer_state_is(_NUMB)) {layer_off(_NUMB);layer_on(_NEO2);}
-                else {
-                    //I like to have space as a key if neo2 is activated.
-                    if(layer_state_is(_NEO2)) {register_code(KC_SPC);}
-                    else {layer_on(_NEO2);}
-                }  
-            }  
-            break;
-        case TD_DOUBLE_HOLD:
-            if (layer_state_is(_SYMB)) {layer_off(_SYMB);layer_on(_NUMB);}
-            else {
-                if(layer_state_is(_NUMB)) {layer_off(_NUMB);}
-                else {layer_on(_NUMB);}
-            }  
-            break;
-        case TD_DOUBLE_TAP:
-            if (layer_state_is(_SYMB)) {layer_off(_SYMB);}
-            else {layer_on(_SYMB);} 
-            break;
-        case TD_SINGLE_HOLD: 
-            if (layer_state_is(_SYMB)) {layer_off(_SYMB);layer_off(_NUMB);layer_off(_NEO2);}
-            else {
-                if(layer_state_is(_NUMB)) {layer_off(_NUMB);layer_off(_NEO2);}
-                else {
-                    if(layer_state_is(_NEO2)) {layer_off(_NEO2);}
-                }
-            }  
-            break;
-        case TD_DOUBLE_SINGLE_TAP: break;
-        case TD_TRIPLE_TAP:break;
-        case TD_UNKNOWN: break;
-        case TD_NONE: break;
-    }
-}
-
-void layer_reset(qk_tap_dance_state_t *state, void *user_data) {
-    switch (xtap_state.state) {
-        case TD_SINGLE_TAP: if(layer_state_is(_NEO2)) {unregister_code(KC_SPC);}break;
-        case TD_SINGLE_HOLD: break;
-        case TD_DOUBLE_TAP: break;
-        case TD_DOUBLE_HOLD: break;
-        case TD_DOUBLE_SINGLE_TAP:break;
-        case TD_TRIPLE_TAP: break;
         case TD_UNKNOWN: break;
         case TD_NONE: break;
     }
@@ -1249,7 +1386,7 @@ void browser_finished(qk_tap_dance_state_t *state, void *user_data) {
         case TD_SINGLE_TAP: register_code(KC_F12);break;//dev tools in chromium
         case TD_DOUBLE_TAP: register_code(KC_F5);break;//reload page
         case TD_SINGLE_HOLD: register_code16(S(KC_F5));break;//reload page hard
-        case TD_DOUBLE_HOLD: register_code16(C(S(KC_DEL)));break;//clear cache
+        case TD_DOUBLE_HOLD: break;
         case TD_DOUBLE_SINGLE_TAP: break;
         case TD_TRIPLE_TAP: break;
         case TD_UNKNOWN: break;
@@ -1262,38 +1399,9 @@ void browser_reset(qk_tap_dance_state_t *state, void *user_data) {
         case TD_SINGLE_TAP: unregister_code(KC_F12);break;
         case TD_SINGLE_HOLD: unregister_code16(C(S(KC_DEL)));break;
         case TD_DOUBLE_TAP: unregister_code(KC_F5);break;
-        case TD_DOUBLE_HOLD: unregister_code16(S(KC_F5));break;
+        case TD_DOUBLE_HOLD: break;
         case TD_DOUBLE_SINGLE_TAP: break;
         case TD_TRIPLE_TAP: unregister_code16(C(S(KC_DEL)));break;
-        case TD_UNKNOWN: break;
-        case TD_NONE: break;
-    }
-    xtap_state.state = TD_NONE;
-}  
-
-//I have to enter the root uuid often,  so I placed it here. I do not use LEAD key to save the space for enabling the feature. 
-void r_finished(qk_tap_dance_state_t *state, void *user_data) {
-    xtap_state.state = cur_dance(state);
-    switch (xtap_state.state) {
-        case TD_SINGLE_TAP: register_code(KC_R);break;
-        case TD_DOUBLE_TAP: tap_code(KC_R);register_code(KC_R);break;
-        case TD_SINGLE_HOLD: SEND_STRING("'00000000-0000-0000-0000-000000000000'");break;
-        case TD_DOUBLE_HOLD: break;
-        case TD_DOUBLE_SINGLE_TAP: tap_code(KC_R);register_code(KC_R);break;
-        case TD_TRIPLE_TAP: break;
-        case TD_UNKNOWN: break;
-        case TD_NONE: break;
-    }
-}              
-
-void r_reset(qk_tap_dance_state_t *state, void *user_data) {
-    switch (xtap_state.state) {
-        case TD_SINGLE_TAP: unregister_code(KC_R);break;
-        case TD_SINGLE_HOLD: break;
-        case TD_DOUBLE_TAP: unregister_code(KC_R);break;
-        case TD_DOUBLE_HOLD: break;
-        case TD_DOUBLE_SINGLE_TAP: unregister_code(KC_R);break;
-        case TD_TRIPLE_TAP: break;
         case TD_UNKNOWN: break;
         case TD_NONE: break;
     }
@@ -1308,7 +1416,7 @@ void comment_finished(qk_tap_dance_state_t *state, void *user_data) {
         case TD_SINGLE_HOLD: SEND_STRING(SS_TAP(X_HOME) SS_TAP(X_DELETE) SS_TAP(X_DELETE));break;
         case TD_DOUBLE_HOLD: break;
         case TD_DOUBLE_SINGLE_TAP: break;
-        case TD_TRIPLE_TAP: SEND_STRING(SS_TAP(X_HOME)"/*"SS_TAP(X_ENTER)" *"SS_TAP(X_ENTER)"*/"SS_TAP(X_UP));break;
+        case TD_TRIPLE_TAP: break;
         case TD_UNKNOWN: break;
         case TD_NONE: break;
     }
@@ -1325,19 +1433,16 @@ qk_tap_dance_action_t tap_dance_actions[] = {
 [TD_AD_PD] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, ad_finished, ad_reset),
 [TD_AU_PU] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, au_finished, au_reset),
 [TD_Quotes] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, quotes_finished, quotes_reset),
-[TD_TO_TM_TT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, talon_finished, NULL),
+[TD_TO_TM_TT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, talon_finished, talon_reset),
 [TD_Tab_CtrlS] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, save_finished, save_reset),
-[TD_Enter_CtrlAltTab] = ACTION_TAP_DANCE_DOUBLE(KC_ENT, A(C(KC_TAB))),
 [TD_Bspc_Del_Delwl_Delwr] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, del_finished, del_reset),
-[TD_URL] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, url_finished, url_reset),
+[TD_URL] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, url_finished, NULL),
 [TD_Period] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, period_finished, period_reset),
 [TD_Comma] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, comma_finished, comma_reset),
 [TD_Caps] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, caps_finished, caps_reset),
 [TD_Find] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, find_finished, find_reset),
 [TD_OneshotMode] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, oneshotMode_finished, oneshotMode_reset),
-[TD_Layer] = ACTION_TAP_DANCE_FN_ADVANCED(NULL,layer_finished, layer_reset),
 [TD_F12_F5] = ACTION_TAP_DANCE_FN_ADVANCED(NULL,browser_finished, browser_reset),
-[TD_R] = ACTION_TAP_DANCE_FN_ADVANCED(NULL,r_finished, r_reset),
 [TD_COMMENT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL,comment_finished, NULL),
 };
-#endif
+

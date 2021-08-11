@@ -27,10 +27,14 @@
 // My layers
 enum layers {
     _NEO2 = 0,
+    _MOUS,
     _NAV,
+    _RSYM,
+    _LSYM,
+    _FUNC,
     _NUMB,
-    _SYMB,
-    _MOUS
+    _AACC,
+
 };
 
 enum keycodes {
@@ -60,10 +64,6 @@ enum {
     TD_RParen_Parens_Func,
     TD_LBrace_Braces_Tag,
     TD_RBrace_Braces_Tag, 
-    TD_AL_WL,
-    TD_AR_WR,
-    TD_AD_PD,
-    TD_AU_PU,
     TD_Quotes,
     TD_TO_TM_TT,
     TD_F12_F5,
@@ -111,18 +111,6 @@ void paren_resetl(qk_tap_dance_state_t *state, void *user_data);
 void braces_finishedl(qk_tap_dance_state_t *state, void *user_data);
 void braces_resetl(qk_tap_dance_state_t *state, void *user_data);
 
-void al_finished(qk_tap_dance_state_t *state, void *user_data);
-void al_reset(qk_tap_dance_state_t *state, void *user_data);
-
-void ar_finished(qk_tap_dance_state_t *state, void *user_data);
-void ar_reset(qk_tap_dance_state_t *state, void *user_data);
-
-void au_finished(qk_tap_dance_state_t *state, void *user_data);
-void au_reset(qk_tap_dance_state_t *state, void *user_data);
-
-void ad_finished(qk_tap_dance_state_t *state, void *user_data);
-void ad_reset(qk_tap_dance_state_t *state, void *user_data);
-
 void quotes_finished(qk_tap_dance_state_t *state, void *user_data);
 void quotes_reset(qk_tap_dance_state_t *state, void *user_data);
 
@@ -159,109 +147,167 @@ void comment_finished(qk_tap_dance_state_t *state, void *user_data);
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
-/* 
-* Base Layer: NEO2
-* 
-
-* ,-------------------------------------------.                              ,-------------------------------------------.
-* |  Play  |   X  |   V  |   L  |   C  |   W  |                              |   K  |   H  |   G  |   F  |   Q  |CtrlAltD|
-* |--------+------+------+------+------|------|                              |------+------+------+------+------+--------|
-* |  Esc   |   U  |Shft/I|SYMB/A| NUM/E|   O  |                              |   S  | NUM/N|SYMB/R|Shft/T|   D  |  Y de  |
-* |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-* |  Alt   | Ü de | Ö de | Ä de |   P  | Z de |      |F12/F5|  | Talon|      |   B  |   M  | ,  ; | .  : |   J  |  ß de  |
-* `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
-*                        |Enpass|  TG1 | Space| Bspc | Caps |  |Onesht| Tab  | Enter|  LC  | GUI  |
-*                        |      |      | NAV  |      |      |  | Mode | Save | NAV  |      |      |
-*                        `----------------------------------'  `----------------------------------'
-*/
-
-[_NEO2] = LAYOUT(
-KC_MPLY, KC_X,KC_V,KC_L,KC_C,KC_W,KC_K,KC_H,KC_G,KC_F,KC_Q,C(A(KC_DEL)),
-KC_ESC, KC_U,MT(MOD_LSFT,KC_I),LA_SYMB1,LA_NUM1,KC_O,KC_S,LA_NUM2,LA_SYMB2,MT(MOD_LSFT,KC_T),KC_D,KC_Z,
-KC_LALT,KC_LBRC,KC_SCLN,KC_QUOT,KC_P,KC_Y,XXXXXXX,BROWSER,TALON,XXXXXXX,KC_B,KC_M,COMMA,PERIOD,KC_J,KC_MINS,
-C(A(KC_E)),TOGGLE,LA_NAV1,DELETE ,CAPSLOCK ,ONESHOT, SAVE,LA_NAV2,MY_MOUSEBTN_1,KC_LGUI
-),
-/* 
-* Base Layer: Navigation 
-* 
-* ,-------------------------------------------.                              ,-------------------------------------------.
-* |  Play  | Manic| Undo | URL  | Redo | Find |                              |CloseT| TabL |  MC  | TabR | ReoT |        |
-* |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
-* |  Esc   | Space|  AL  |  AU  |  AR  | Bspc |                              |  WL  |  ML  |  MU  |  MR  |  WR  | Mute   |
-* |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-* |  Alt   |      |      |  AD  | Co/Pa|SelAll|      |      |  |      |      |Screen|  WD  |  MD  |  WU  |      | Logout |
-* `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
-*                        |      |      |  LC  |  RC  |      |  |      |      |  LC  | ENTER|      |
-*                        |      |      |      |      |      |  |      |      |      |      |      |
-*                        `----------------------------------'  `----------------------------------'
-*/
-[_NAV] = LAYOUT(
-_______, A(C(S(KC_W))), C(KC_Y), URL, C(KC_Z), FIND, C(KC_W),S(C(KC_TAB)), MY_MOUSEBTN_3, C(KC_TAB), C(S(KC_T)), _______,
-_______, MT(MOD_LSFT,KC_SPC), LEFTA, UPA, RIGHTA,DELETE, KC_WH_L, KC_MS_L, KC_MS_U, KC_MS_R, KC_WH_R, KC_MUTE,
-_______, _______, _______,DOWNA, COPY, C(KC_A), XXXXXXX, _______, _______,XXXXXXX,LSG(KC_S), KC_WH_D, KC_MS_D, KC_WH_U, _______, LSG(KC_L),
-_______, _______, MY_MOUSEBTN_1, MY_MOUSEBTN_2, _______, _______, _______,MY_MOUSEBTN_1, KC_ENT, _______
-),
-
 /*
-* Number Layer: Number keys int 
-*
-* ,-------------------------------------------.                              ,-------------------------------------------.
-* |        |      |      |      |      |      |                              |  -   |  7   |  8   |  9   |   /  |        |
-* |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
-* |        |      |      |      |      |      |                              |  ,   |  4   |  5   |  6   |   *  |   =    |
-* |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-* |        |      |      |      |      |      |      |      |  |      |      |  +   |  1   |  2   |  3   |   )  |        |
-* `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
-*                        |      |      |      |      |      |  |      |      |      |  0   |  0   |
-*                        |      |      |      |      |      |  |      |      |      |      |      |
-*                        `----------------------------------'  `----------------------------------'
-*/
-[_NUMB] = LAYOUT(
-XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_PMNS, KC_7, KC_8, KC_9, KC_PSLS, XXXXXXX,
-XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_COMM, KC_4, KC_5, KC_6, KC_PAST, KC_PEQL,
-XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_RBRC, KC_1, KC_2, KC_3, S(KC_9), _______,
-XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_0, KC_0, KC_0     
-),
-/*
-* Symbol Layer: Symbols
-*
-* ,-------------------------------------------.                              ,-------------------------------------------.
-* |        |      |      |   `  |  ^   |      |                              |      |      |   =  |   &  |      |        |
-* |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
-* |        |  \   |  /   |  {   |  }   |  *   |                              |   ?  |  (   |  )   |   -  |   @  |        |
-* |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-* |        |  #   |  $   |  |   |  '   |  `   |      |      |  |      |      |   +  |  %   |COMMEN|      |   €  |        |
-* `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
-*                        |      |      |   "  |  ~   |      |  |      |   !  |   _  |      |      |
-*                        |      |      |      |      |      |  |      |      |      |      |      |
-*                        `----------------------------------'  `----------------------------------'
-*/
-[_SYMB] = LAYOUT(
-_______, _______, _______, KC_EQL, KC_GRV, _______, _______, _______,S(KC_0), S(KC_6), _______,_______, 
-_______, ALGR(KC_MINS), S(KC_7), BRACES, BRACESR, S(KC_RBRC), S(KC_MINS), PARENS, PARENSR, KC_SLSH, ALGR(KC_Q),_______,
-    _______, KC_NUHS, S(KC_4), ALGR(KC_NUBS), QUOTES, S(KC_EQL), XXXXXXX, _______, _______, XXXXXXX, KC_RBRC, S(KC_5),COMMENT ,_______, ALGR(KC_E), _______,
-    _______, _______, S(KC_2),ALGR(KC_RBRC), _______,_______,S(KC_1), S(KC_SLSH), _______, _______
-    ),
-/*
-* Mouse Layer: Mouse keys  
-*
-* ,-------------------------------------------.                              ,-------------------------------------------.
-* |        |      |      |      |      |      |                              |      |      |      |      |      |        |
-* |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
-* |        |      |      |      |      |      |                              |      |      |      |      |      |        |
-* |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-* |        |      |      |      |      |      |      |      |  |      |      |      |      |      |      |      |        |
-* `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
-*                        |      |      |   LC |  RC  |  MC  |  |      |      |      |      |      |
-*                        |      |      |      |      |      |  |      |      |      |      |      |
-*                        `----------------------------------'  `----------------------------------'
-*/
-[_MOUS] = LAYOUT(
-XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-XXXXXXX, XXXXXXX, MY_MOUSEBTN_1, MY_MOUSEBTN_2, MY_MOUSEBTN_3, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX     
-),
+ * Layer 0: Base Layer
+ *
+ * ,-------------------------------------------.                              ,-------------------------------------------.
+ * |  Play  |  X   |  V   |  L   |  C   |  W   |                              |   K  |   H  |   G  |   F  |   Q  |CtrlAltD|
+ * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
+ * |  ESC   |U-SHFT| I-LT5| A-LT1| E-LT3|  O   |                              |   S  |N-LT4 |R-LT2 |T-LT6 |D-SHFT|  Y de  |
+ * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
+ * |  Play  |Ü-CTRL|Ö-ALT |  Ä   |  P   |  Z   |      |F12/F5|  | Talon|      |   B  |   M  |,-LALT|.-CTRL|   J  |  ß de  |
+ * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
+ *                        |Enpass|      | BSPC |      | Caps |  |      | Save |  LT7 |      |      |
+ *                        |      |      |      |      |      |  |      |      |SPACE |      |      |
+ *                        `----------------------------------'  `----------------------------------'
+ */
+     [_NEO2] = LAYOUT(
+       KC_MPLY, KC_X,KC_V,KC_L,KC_C,KC_W,                                     KC_K,KC_H,KC_G,KC_F,KC_Q,C(A(KC_DEL)),
+       KC_ESC, LSFT_T(KC_U), LT5, LT1, LT3, KC_O,                                     KC_S, LT4, LT2, LT6, LSFT_T(KC_D),KC_Z,
+       KC_MPLY, LCTL_T(KC_LBRC), LALT_T(KC_SCLN), KC_QUOT,KC_P,KC_Y, _______, BROWSER, TALON,_______,  KC_B, KC_M, COMMA, PERIOD, KC_J,KC_MINS,
+                                  C(A(KC_E)), _______, DELETE, _______, CAPSLOCK, ONESHOT, SAVE, LT7, _______, _______
+     ),
+ /*
+  * Layer 1: Mouse
+  *
+  * ,-------------------------------------------.                              ,-------------------------------------------.
+  * |        |      |      |      |      |      |                              |      |MOUSE1| W-UP |MOUSE2|      |        |
+  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
+  * |        |      |MOUSE1|      |MOUSE2|      |                              |      |M-LEFT|M-DOWN| M-UP |M-RGHT|        |
+  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
+  * |        |      |      |      |MOUSE3|      |      |      |  |      |      |      |W-LEFT|W-DOWN|W-RGHT|      |        |
+  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
+  *                        |      |      |      |      |      |  |      |      |      |      |      |
+  *                        |      |      |      |      |      |  |      |      |      |      |      |
+  *                        `----------------------------------'  `----------------------------------'
+  */
+     [_MOUS] = LAYOUT(
+       _______, _______, _______, _______, _______, _______,                                     _______, MY_MOUSEBTN_1, KC_WH_U, MY_MOUSEBTN_2, _______, _______,
+       _______, _______, MY_MOUSEBTN_1, _______, MY_MOUSEBTN_2, _______,                                     _______, KC_MS_L, KC_MS_D, KC_MS_U, KC_MS_R, _______,
+       _______, _______, _______, _______, MY_MOUSEBTN_3, _______, _______, _______, _______, _______, _______, KC_WH_L, KC_WH_D, KC_WH_R, _______, _______,
+                                  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
+     ),
+
+ /*
+  * Layer 2: Navigation
+  *
+  * ,-------------------------------------------.                              ,-------------------------------------------.
+  * |        |      |      |PAGEUP|      |      |                              |      |      |      |      |      |        |
+  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
+  * |        | LEFT |  UP  | DOWN | RIGHT|      |                              |      | LGUI |      |C_S_T |LCTL_T|        |
+  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
+  * |        |      | HOME |PAGEDW|  END |      |      |      |  |      |      |      |      |      |      |      |        |
+  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
+  *                        |      |      |      |      |      |  |      |      |      |      |      |
+  *                        |      |      |      |      |      |  |      |      |      |      |      |
+  *                        `----------------------------------'  `----------------------------------'
+  */
+     [_NAV] = LAYOUT(
+       _______, _______, _______, KC_PGUP, _______, _______,                                     _______, _______, _______, _______, _______, _______,
+       _______, KC_LEFT, KC_UP, KC_DOWN, KC_RIGHT, _______,                                     _______, KC_LGUI, _______,C_S_T(KC_TAB),LCTL_T(KC_ENT), _______,
+       _______, _______, _______, KC_PGDOWN, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+                                  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
+     ),
+ /*
+  * Layer 3: Right symbols
+  *
+  * ,-------------------------------------------.                              ,-------------------------------------------.
+  * |        |      |      |      |      |      |                              |      |      |   =  |      |      |        |
+  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
+  * |        |  &   |  ~   |  *   |      |      |                              |      |  (   |  )   |   -  |   @  |        |
+  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
+  * |        |      |      |      |      |      |      |      |  |      |      |      |   +  |  %   |COMMEN|   €  |        |
+  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
+  *                        |      |      |      |   "  |      |  |      |   _  |      |      |      |
+  *                        |      |      |      |      |      |  |      |      |      |      |      |
+  *                        `----------------------------------'  `----------------------------------'
+  */
+     [_RSYM] = LAYOUT(
+       _______, _______, _______, _______, _______, _______,                                     _______, _______, S(KC_0), _______, _______, _______,
+       _______, S(KC_6), ALGR(KC_RBRC), S(KC_MINS), _______, _______,                                     _______, PARENS, PARENSR, KC_SLSH, ALGR(KC_Q),_______,
+       _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_RBRC, S(KC_5),COMMENT , ALGR(KC_E), _______,
+                                  _______, _______, _______, S(KC_2), _______, _______, S(KC_SLSH), _______, _______, _______
+     ),
+ /*
+  * Layer 4: Left symbols
+  *
+    ,-------------------------------------------.                              ,-------------------------------------------.
+  * |        |      |      |      |      |      |                              |      |      |      |      |      |        |
+  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
+  * |    `   |  \   |  /   |  {   |  }   |      |                              |      |      |  ?   |  !   |  ^   |        |
+  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
+  * |        |  #   |  $   |  |   |  '   |  `   |      |      |  |      |      |      |      |      |      |      |        |
+  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
+  *                        |      |      |      |   "  |      |  |      |   _  |      |      |      |
+  *                        |      |      |      |      |      |  |      |      |      |      |      |
+  *                        `----------------------------------'  `----------------------------------'
+  */
+     [_LSYM] = LAYOUT(
+       _______, _______, _______, _______, _______, _______,                                     _______, _______, _______, _______, _______, _______,
+       ALGR(KC_MINS), S(KC_7), BRACES, BRACESR, S(KC_RBRC), _______,                                     _______, _______, S(KC_MINS), S(KC_1), KC_GRV, _______,
+       KC_EQL, KC_NUHS, S(KC_4), ALGR(KC_NUBS), QUOTES, S(KC_EQL), _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+                                  _______, _______, _______, S(KC_2), _______, _______, S(KC_SLSH), _______, _______, _______
+     ),
+ /*
+  * Layer 5: Func keys
+  *
+  * ,-------------------------------------------.                              ,-------------------------------------------.
+  * |        |      |      |      |      |      |                              |      |  F7  |  F8  |  F9  |  F10 |        |
+  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
+  * |        |      |CTLALT|      |      |      |                              |      |  F4  |  F5  |  F6  |  F11 |        |
+  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
+  * |        |      |      |      |      |      |      |      |  |      |      |      |  F1  |  F2  |  F3  |  F12 |        |
+  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
+  *                        |      |      |      |      |      |  |      |      |      |      |      |
+  *                        |      |      |      |      |      |  |      |      |      |      |      |
+  *                        `----------------------------------'  `----------------------------------'
+  */
+     [_FUNC] = LAYOUT(
+       _______, _______, _______, _______, _______, _______,                                     _______, KC_F7, KC_F8, KC_F9, KC_F10, _______,
+       _______, _______, C(KC_LALT), _______, _______, _______,                                  _______, KC_F4, KC_F5, KC_F6, KC_F11, _______,
+       _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_F1, KC_F2, KC_F3, KC_F12, _______,
+                                  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
+     ),
+ /*
+  * Layer 6: Numbers
+  *
+  * ,-------------------------------------------.                              ,-------------------------------------------.
+  * |        |  /   |  7   |  8   |  9   |  +   |                              |      |      |      |      |      |        |
+  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
+  * |        |  0   |  1   |  2   |  3   |  -   |                              |      |      |      |      |      |        |
+  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
+  * |        |  *   |  4   |  5   |  6   |  =   |      |      |  |      |      |      |      |      |      |      |        |
+  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
+  *                        |      |      |      |      |      |  |      |      |      |      |      |
+  *                        |      |      |      |      |      |  |      |      |      |      |      |
+  *                        `----------------------------------'  `----------------------------------'
+  */
+     [_NUMB] = LAYOUT(
+       _______, KC_PSLS, KC_7, KC_8, KC_9, KC_RBRC,                                     _______, _______, _______, _______, _______, _______,
+       _______, KC_0, KC_1, KC_2, KC_3, KC_PMNS,                                     _______, _______, _______, _______, _______, _______,
+       _______, KC_PAST, KC_4, KC_5, KC_6, KC_PEQL, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+                                  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
+     ),
+ /*
+  * Layer 7: Always accessible
+  *
+  * ,-------------------------------------------.                              ,-------------------------------------------.
+  * |        |      | Manic| URL  |      |      |                              |      |      | ReoT |DupTab|      |        |
+  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
+  * |        | ESC  | UNDO | REDO |ENTER | Find |                              |      | DF1  | TabL | TabR |CloseT| Mute   |
+  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
+  * |        |      |Screen|      |Co/Pa |      |      |      |  |      |      |      | DF0  |      |      | RESET |        |
+  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
+  *                        |      |      | TAB  |      |      |  |      |      |      |      |      |
+  *                        |      |      |      |      |      |  |      |      |      |      |      |
+  *                        `----------------------------------'  `----------------------------------'
+  */
+     [_AACC] = LAYOUT(
+       _______, _______, A(C(S(KC_W))), URL, _______, _______,                                     _______, _______, C(S(KC_T)), C(S(KC_K)), _______, _______,
+       _______, KC_ESC, C(KC_Y), C(KC_Z), KC_ENT, FIND,                                     _______, DF(_MOUS), S(C(KC_TAB)), C(KC_TAB), C(KC_W), KC_MUTE,
+       _______, _______, LSG(KC_S), _______, COPY, _______, _______, _______, _______, _______, _______, DF(_NEO2), _______, _______, _______, _______,
+                                  _______, _______, KC_TAB, _______, _______, _______, _______, _______, _______, _______
+     )
 };
 
 #ifdef PIMORONI_TRACKBALL_ENABLE
@@ -270,7 +316,7 @@ XXXXXXX, XXXXXXX, MY_MOUSEBTN_1, MY_MOUSEBTN_2, MY_MOUSEBTN_3, XXXXXXX, XXXXXXX,
 #include "quantum/quantum.h"
 #include "i2c_master.h"
 
-static int16_t mouse_auto_layer_timer = 0;
+ //static int16_t mouse_auto_layer_timer = 0;
 #define MOUSE_TIMEOUT 600
 #define TRACKBALL_TIMEOUT 5
 
@@ -321,18 +367,18 @@ void pointing_device_task() {
             pointing_device_set_report(mouse);
             pointing_device_send();
         } else {
-            if (layer_state_is(_SYMB)) {
+            if (layer_state_is(_LSYM) || layer_state_is(_RSYM)) {
                 h_offset += state.x;
                 v_offset -= state.y;
  
-            } else if (layer_state_is(_NUMB)) {
+            } else if (layer_state_is(_NUMB) || layer_state_is(_FUNC)) {
                 v_offset -= state.x;
             } else if ((state.x || state.y) && !state.button_down) {
 
-                if (!mouse_auto_layer_timer && !layer_state_is(_NAV)) { 
-                    layer_on(_MOUS); 
-                } 
-                mouse_auto_layer_timer = timer_read() | 1;
+               //  if (!mouse_auto_layer_timer) { 
+                //     layer_on(_MOUS); 
+               //  } 
+               //  mouse_auto_layer_timer = timer_read() | 1;
                 uint8_t scale = 3;
               
                 x_offset += state.x * state.x * SIGN(state.x) * scale;
@@ -418,8 +464,9 @@ uint16_t alt_tab_timer = 0;
 
 bool is_oneshot_cancel_key(uint16_t keycode) {
     switch (keycode) {
-        case LA_NAV2:
-        case LA_NAV1:
+        case LT7:
+        case LT4:
+        case LT3:
         return true;
     default:
         return false;
@@ -428,13 +475,10 @@ bool is_oneshot_cancel_key(uint16_t keycode) {
 
 bool is_oneshot_ignored_key(uint16_t keycode) {
     switch (keycode) {
-        case LA_SYMB1:
-        case LA_SYMB2:
-        case LA_NUM1:
-        case LA_NUM2:
+        case LT2:
+        case LT5:
+        case LT1:
         case ONESHOT_MOD:
-        case KC_LSFT:
-        case TOGGLE:
         case OS_SHFT:
         case OS_CTRL:
         case OS_ALT:
@@ -459,7 +503,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     update_oneshot(&os_cmd_state, KC_LGUI, OS_CMD,keycode, record);
     
     process_caps_word(keycode, record);
+    #ifdef PIMORONI_TRACKBALL_ENABLE
     report_mouse_t currentReport = {};
+    #endif
     switch (keycode) {
         case CAPS_WORD:
             // Toggle `caps_word_on`
@@ -469,9 +515,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             break;
         case MY_MOUSEBTN_1:
-            if(!layer_state_is(_MOUS)){
+            if(true){//!layer_state_is(_MOUS)){
                 record->event.pressed?register_code(KC_BTN1):unregister_code(KC_BTN1);
             }else{
+                #ifdef PIMORONI_TRACKBALL_ENABLE
                 currentReport = pointing_device_get_report();
                 if (record->event.pressed) {
                     currentReport.buttons |= MOUSE_BTN1;
@@ -480,13 +527,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     currentReport.buttons &= ~MOUSE_BTN1;
                 }
                 pointing_device_set_report(currentReport);
+                #endif
                 return false;
             }
             break;
         case MY_MOUSEBTN_2:
-            if(!layer_state_is(_MOUS)){
+            if(true){//!layer_state_is(_MOUS)){
                 record->event.pressed?register_code(KC_BTN2):unregister_code(KC_BTN2);
             }else{
+                #ifdef PIMORONI_TRACKBALL_ENABLE
                 currentReport = pointing_device_get_report();
                 if (record->event.pressed) {
                     currentReport.buttons |= MOUSE_BTN2;
@@ -495,13 +544,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     currentReport.buttons &= ~MOUSE_BTN2;
                 }
                 pointing_device_set_report(currentReport);
+                #endif
                 return false;
             }
             break;
         case MY_MOUSEBTN_3:
-            if(!layer_state_is(_MOUS)){
+            if(true){//!layer_state_is(_MOUS)){
                 record->event.pressed?register_code(KC_BTN3):unregister_code(KC_BTN3);
             }else{
+                #ifdef PIMORONI_TRACKBALL_ENABLE
                 currentReport = pointing_device_get_report();
                 if (record->event.pressed) {
                     currentReport.buttons |= MOUSE_BTN3;
@@ -510,6 +561,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     currentReport.buttons &= ~MOUSE_BTN3;
                 }
                 pointing_device_set_report(currentReport);
+                #endif
                 return false;
             }
             break;
@@ -522,10 +574,10 @@ void update_mode_rgb(void) {
     uint8_t mods;
     #ifdef RGBLIGHT_LAYERS
     mods = mod_config(get_mods());
-    rgblight_set_layer_state(5, mods & MOD_MASK_SHIFT);
-    rgblight_set_layer_state(6, mods & MOD_MASK_CTRL);
-    rgblight_set_layer_state(7, mods & MOD_MASK_ALT);
-    rgblight_set_layer_state(8, mods & MOD_MASK_GUI);
+    rgblight_set_layer_state(8, mods & MOD_MASK_SHIFT);
+    rgblight_set_layer_state(9, mods & MOD_MASK_CTRL);
+    rgblight_set_layer_state(10, mods & MOD_MASK_ALT);
+    rgblight_set_layer_state(11, mods & MOD_MASK_GUI);
     #endif    
 }
 
@@ -536,23 +588,26 @@ void matrix_scan_user(void) {
             is_alt_tab_active = false;
         }
     }
-    if (mouse_auto_layer_timer && timer_elapsed(mouse_auto_layer_timer) > MOUSE_TIMEOUT) {
-         report_mouse_t rep = pointing_device_get_report();
-         if (rep.buttons) { return; } 
-         layer_off(_MOUS); 
-         mouse_auto_layer_timer = 0; 
-    } 
+    // #ifdef PIMORONI_TRACKBALL_ENABLE
+  //   if (mouse_auto_layer_timer && timer_elapsed(mouse_auto_layer_timer) > MOUSE_TIMEOUT) {
+    //      report_mouse_t rep = pointing_device_get_report();
+    //      if (rep.buttons) { return; } 
+    //      layer_off(_MOUS); 
+    //      mouse_auto_layer_timer = 0; 
+   //  } 
+    // #endif  
 }
-
-bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
-    if ((keycode < KC_BTN1 || keycode > KC_BTN5) 
-            && layer_state_is(_MOUS) 
-            && record->event.pressed) { 
-        layer_off(_MOUS); 
-        mouse_auto_layer_timer = 0; 
-     } 
-    return true;
-}
+ //#ifdef PIMORONI_TRACKBALL_ENABLE
+ //bool process_record_keymap(uint16_t keycode, keyrecord_t *record) {
+  //   if ((keycode < KC_BTN1 || keycode > KC_BTN5) 
+  //           && layer_state_is(_MOUS) 
+ //            && record->event.pressed) { 
+    //     layer_off(_MOUS); 
+ //        mouse_auto_layer_timer = 0; 
+  //    } 
+   //  return true;
+ //}
+ //#endif  
 
 #ifdef OLED_DRIVER_ENABLE
 void suspend_power_down_user() {
@@ -575,7 +630,8 @@ static void render_status(void) {
             oled_write_P(PSTR("Neo\n"), false);break;
         case _NAV:
             oled_write_P(PSTR("Nav\n"), false);break;
-        case _SYMB:
+        case _LSYM:
+        case _RSYM:
             oled_write_P(PSTR("Sym\n"), false);break;
         case _NUMB:
             oled_write_P(PSTR("Num\n"), false);break;
@@ -603,10 +659,14 @@ void oled_task_user(void) {
 
 #ifdef RGBLIGHT_LAYERS
 const rgblight_segment_t PROGMEM neo2_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_MAGENTA});
-const rgblight_segment_t PROGMEM nav_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_BLUE});
-const rgblight_segment_t PROGMEM symb_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_GREEN});
-const rgblight_segment_t PROGMEM num_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_RED});
-const rgblight_segment_t PROGMEM mous_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_WHITE});
+const rgblight_segment_t PROGMEM mous_layers[] = RGBLIGHT_LAYER_SEGMENTS({10, 20, HSV_BLUE});
+const rgblight_segment_t PROGMEM nav_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 9, HSV_BLUE});
+const rgblight_segment_t PROGMEM lsym_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 9, HSV_GREEN});
+const rgblight_segment_t PROGMEM rsym_layers[] = RGBLIGHT_LAYER_SEGMENTS({10, 20, HSV_GREEN});
+const rgblight_segment_t PROGMEM func_layers[] = RGBLIGHT_LAYER_SEGMENTS({10, 20, HSV_RED});
+const rgblight_segment_t PROGMEM numb_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 9, HSV_RED});
+const rgblight_segment_t PROGMEM aacc_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_WHITE});
+
 const rgblight_segment_t PROGMEM shift_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_GOLD});
 const rgblight_segment_t PROGMEM ctrl_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_ORANGE});
 const rgblight_segment_t PROGMEM alt_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_SPRINGGREEN});
@@ -614,10 +674,13 @@ const rgblight_segment_t PROGMEM gui_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, 
 
 const rgblight_segment_t* const PROGMEM my_rgb_layers[] = RGBLIGHT_LAYERS_LIST(
     neo2_layers,
-    nav_layers, 
-    num_layers,
-    symb_layers,
-    mous_layers,
+    mous_layers, 
+    nav_layers,
+    rsym_layers,
+    lsym_layers,
+    func_layers,
+    numb_layers,
+    aacc_layers,
     shift_layers,
     ctrl_layers,
     alt_layers,
@@ -635,7 +698,7 @@ void keyboard_post_init_user(void) {
 #ifdef RGBLIGHT_LAYERS
     rgblight_layers = my_rgb_layers;
 #else
-    rgblight_sethsv_noeeprom(HSV_BLUE);
+    rgblight_sethsv_noeeprom(HSV_MAGENTA);
 #endif
 #ifdef PIMORONI_TRACKBALL_ENABLE
     rgb_hue = rgblight_get_hue();
@@ -644,36 +707,55 @@ void keyboard_post_init_user(void) {
     trackball_set_hsv(rgb_hue, rgb_sat, rgb_brightness);
 #endif
 }
+layer_state_t default_layer_state_set_user(layer_state_t state) {
+    #ifdef RGBLIGHT_LAYERS
+    rgblight_set_layer_state(0, layer_state_cmp(state, _NEO2));
+    rgblight_set_layer_state(1, layer_state_cmp(state, _MOUS));
+    #endif
+
+    return state;
+}
 
 layer_state_t layer_state_set_user(layer_state_t state) {
+
 #ifdef RGBLIGHT_LAYERS
-    for (int i = _NEO2; i < 5; i++) {
+    for (int i = _NAV; i < 8; i++) {
         rgblight_set_layer_state(i, layer_state_cmp(state, i));
     }
 #endif
 #ifdef PIMORONI_TRACKBALL_ENABLE
-    uint8_t layer = get_highest_layer(state);
-    switch(layer) {
+
+
+        switch (get_highest_layer(state | default_layer_state)) {
         case _NEO2:
-            trackball_set_rgbw(rgb_brightness,0,rgb_brightness, 0);
+            trackball_set_rgbw(rgb_brightness, 0, rgb_brightness,0);
+            break;
+        case _MOUS:
+            trackball_set_rgbw(0, 0, rgb_brightness,0);
             break;
         case _NAV:
-            trackball_set_rgbw(0, 0, rgb_brightness, 0);
+            trackball_set_rgbw(0, 0, rgb_brightness,0);
             break;
-        case _SYMB:
+        case _RSYM:
             trackball_set_rgbw(0, rgb_brightness, 0, 0);
+            break;
+        case _LSYM:
+            trackball_set_rgbw(0, rgb_brightness, 0, 0);
+            break;
+        case _FUNC:
+            trackball_set_rgbw(rgb_brightness,0,  0, 0);
             break;
         case _NUMB:
             trackball_set_rgbw(rgb_brightness,0,  0, 0);
             break;
-        case _MOUS:
-            trackball_set_rgbw(rgb_brightness,0,  0, rgb_brightness);
+        case _AACC:
+            trackball_set_rgbw(0, 0, 0, rgb_brightness);
             break;
-        default:
-            trackball_set_hsv(rgb_hue, rgb_sat, rgb_brightness);
+        default: //  for any other layers, or the default layer
+            trackball_set_rgbw(0, 0, rgb_brightness,0);
             break;
-    }
 
+    }
 #endif
 
     return state;
@@ -932,118 +1014,6 @@ void braces_resetl(qk_tap_dance_state_t *state, void *user_data) {
     xtap_state.state = TD_NONE;
 }
 
-void al_finished(qk_tap_dance_state_t *state, void *user_data) {
-    xtap_state.state = cur_dance(state);
-    switch (xtap_state.state) {
-        case TD_SINGLE_TAP: register_code(KC_LEFT); break;
-        case TD_SINGLE_HOLD: register_code16(C(KC_LEFT)); break;//select word left
-        case TD_DOUBLE_TAP: register_code16(C(S(KC_LEFT))); break;//select word right
-        case TD_DOUBLE_HOLD: register_code16(C(S(KC_G))); break;//codemirror code to select previous search result. 
-        case TD_DOUBLE_SINGLE_TAP: tap_code(KC_LEFT);register_code(KC_LEFT);break;
-        case TD_TRIPLE_TAP: break;
-        case TD_UNKNOWN: break;
-        case TD_NONE: break;
-    }
-}
-
-void al_reset(qk_tap_dance_state_t *state, void *user_data) {
-    switch (xtap_state.state) {
-        case TD_SINGLE_TAP: unregister_code(KC_LEFT); break;
-        case TD_SINGLE_HOLD: unregister_code16(C(KC_LEFT)); break;
-        case TD_DOUBLE_TAP: unregister_code16(C(S(KC_LEFT))); break;
-        case TD_DOUBLE_HOLD: unregister_code16(C(S(KC_G))); break;
-        case TD_DOUBLE_SINGLE_TAP: unregister_code(KC_LEFT); break;
-        case TD_TRIPLE_TAP: break;
-        case TD_UNKNOWN: break;
-        case TD_NONE: break;
-    }
-    xtap_state.state = TD_NONE;
-}
-
-void ar_finished(qk_tap_dance_state_t *state, void *user_data) {
-    xtap_state.state = cur_dance(state);
-    switch (xtap_state.state) {
-        case TD_SINGLE_TAP: register_code16(KC_RIGHT); break;
-        case TD_SINGLE_HOLD: register_code16(C(KC_RIGHT)); break;
-        case TD_DOUBLE_TAP: register_code16(C(S(KC_RIGHT))); break;
-        case TD_DOUBLE_HOLD: register_code16(C(KC_G)); break;
-        case TD_DOUBLE_SINGLE_TAP: tap_code(KC_RIGHT);register_code(KC_RIGHT);break;
-        case TD_TRIPLE_TAP: break;
-        case TD_UNKNOWN: break;
-        case TD_NONE: break;
-    }
-}
-
-void ar_reset(qk_tap_dance_state_t *state, void *user_data) {
-    switch (xtap_state.state) {
-        case TD_SINGLE_TAP: unregister_code16(KC_RIGHT); break;
-        case TD_SINGLE_HOLD: unregister_code16(C(KC_RIGHT)); break;
-        case TD_DOUBLE_TAP: unregister_code16(C(S(KC_RIGHT))); break;
-        case TD_DOUBLE_HOLD: unregister_code16(C(KC_G)); break;
-        case TD_DOUBLE_SINGLE_TAP: unregister_code(KC_RIGHT); break;
-        case TD_TRIPLE_TAP: break;
-        case TD_UNKNOWN: break;
-        case TD_NONE: break;
-    }
-    xtap_state.state = TD_NONE;
-}
-
-void au_finished(qk_tap_dance_state_t *state, void *user_data) {
-    xtap_state.state = cur_dance(state);
-    switch (xtap_state.state) {
-        case TD_SINGLE_TAP: register_code(KC_UP); break;
-        case TD_SINGLE_HOLD: register_code(KC_PGUP); break;
-        case TD_DOUBLE_TAP: tap_code(KC_UP);register_code(KC_UP);break;
-        case TD_DOUBLE_HOLD: register_code(KC_HOME); break;
-        case TD_DOUBLE_SINGLE_TAP: tap_code(KC_UP);register_code(KC_UP);break;
-        case TD_TRIPLE_TAP: break;
-        case TD_UNKNOWN: break;
-        case TD_NONE: break;
-    }
-}
-
-void au_reset(qk_tap_dance_state_t *state, void *user_data) {
-    switch (xtap_state.state) {
-        case TD_SINGLE_TAP: unregister_code(KC_UP); break;
-        case TD_SINGLE_HOLD: unregister_code(KC_PGUP); break;
-        case TD_DOUBLE_TAP: unregister_code(KC_UP); break;
-        case TD_DOUBLE_HOLD: unregister_code(KC_HOME); break;
-        case TD_DOUBLE_SINGLE_TAP: unregister_code(KC_UP); break;
-        case TD_TRIPLE_TAP: break;
-        case TD_UNKNOWN: break;
-        case TD_NONE: break;
-    }
-    xtap_state.state = TD_NONE;
-}
-
-void ad_finished(qk_tap_dance_state_t *state, void *user_data) {
-    xtap_state.state = cur_dance(state);
-    switch (xtap_state.state) {
-        case TD_SINGLE_TAP: register_code(KC_DOWN); break;
-        case TD_SINGLE_HOLD: register_code(KC_PGDOWN); break;
-        case TD_DOUBLE_TAP: tap_code(KC_DOWN);register_code(KC_DOWN);break;
-        case TD_DOUBLE_HOLD: register_code(KC_END); break;
-        case TD_DOUBLE_SINGLE_TAP: tap_code(KC_DOWN);register_code(KC_DOWN);break;
-        case TD_TRIPLE_TAP: break;
-        case TD_UNKNOWN: break;
-        case TD_NONE: break;
-    }
-}
-
-void ad_reset(qk_tap_dance_state_t *state, void *user_data) {
-    switch (xtap_state.state) {
-        case TD_SINGLE_TAP: unregister_code(KC_DOWN); break;
-        case TD_SINGLE_HOLD: unregister_code(KC_PGDOWN); break;
-        case TD_DOUBLE_TAP: unregister_code(KC_DOWN); break;
-        case TD_DOUBLE_HOLD: unregister_code(KC_END); break;
-        case TD_DOUBLE_SINGLE_TAP: unregister_code(KC_DOWN); break;
-        case TD_TRIPLE_TAP: break;
-        case TD_UNKNOWN: break;
-        case TD_NONE: break;
-    }
-    xtap_state.state = TD_NONE;
-}
-
 void quotes_finished(qk_tap_dance_state_t *state, void *user_data) {
     xtap_state.state = cur_dance(state);
     switch (xtap_state.state) {
@@ -1194,7 +1164,7 @@ void period_finished(qk_tap_dance_state_t *state, void *user_data) {
                 tap_code(KC_SPC);
             }
             break;
-        case TD_SINGLE_HOLD: register_code(KC_DOT);break;
+        case TD_SINGLE_HOLD: add_mods(MOD_MASK_CTRL);break;
         case TD_DOUBLE_HOLD: break;
         case TD_DOUBLE_SINGLE_TAP: tap_code(KC_DOT);register_code(KC_DOT);break;
         case TD_TRIPLE_TAP: break;
@@ -1206,7 +1176,7 @@ void period_finished(qk_tap_dance_state_t *state, void *user_data) {
 void period_reset(qk_tap_dance_state_t *state, void *user_data) {
     switch (xtap_state.state) {
         case TD_SINGLE_TAP: unregister_code(KC_DOT);break;
-        case TD_SINGLE_HOLD: unregister_code16(S(KC_DOT));break;
+        case TD_SINGLE_HOLD: del_mods(MOD_MASK_CTRL);break;
         case TD_DOUBLE_TAP: break;
         case TD_DOUBLE_HOLD: break;
         case TD_DOUBLE_SINGLE_TAP:unregister_code(KC_DOT);break;
@@ -1232,7 +1202,7 @@ void comma_finished(qk_tap_dance_state_t *state, void *user_data) {
                 tap_code16(KC_COMMA);
             }
             break;
-        case TD_SINGLE_HOLD: register_code(KC_COMMA);break;
+        case TD_SINGLE_HOLD: add_mods(MOD_MASK_ALT);break;
         case TD_DOUBLE_HOLD: break;
         case TD_DOUBLE_SINGLE_TAP: tap_code(KC_COMMA);register_code(KC_COMMA);break;
         case TD_TRIPLE_TAP: break;
@@ -1244,7 +1214,7 @@ void comma_finished(qk_tap_dance_state_t *state, void *user_data) {
 void comma_reset(qk_tap_dance_state_t *state, void *user_data) {
     switch (xtap_state.state) {
         case TD_DOUBLE_TAP: unregister_code(KC_COMMA);break;
-        case TD_SINGLE_HOLD: unregister_code16(S(KC_COMMA));break;
+        case TD_SINGLE_HOLD: del_mods(MOD_MASK_ALT);break;
         case TD_SINGLE_TAP: break;
         case TD_DOUBLE_HOLD: break;
         case TD_DOUBLE_SINGLE_TAP:unregister_code(KC_COMMA);break;
@@ -1428,10 +1398,6 @@ qk_tap_dance_action_t tap_dance_actions[] = {
 [TD_RParen_Parens_Func] = ACTION_TAP_DANCE_DOUBLE( S(KC_9),  ALGR(KC_9)),
 [TD_RBrace_Braces_Tag] = ACTION_TAP_DANCE_DOUBLE(ALGR(KC_0),  S(KC_NUBS)),
 [TD_LBrace_Braces_Tag] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, braces_finishedl, braces_resetl),
-[TD_AL_WL] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, al_finished, al_reset),
-[TD_AR_WR] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, ar_finished, ar_reset),
-[TD_AD_PD] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, ad_finished, ad_reset),
-[TD_AU_PU] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, au_finished, au_reset),
 [TD_Quotes] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, quotes_finished, quotes_reset),
 [TD_TO_TM_TT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, talon_finished, talon_reset),
 [TD_Tab_CtrlS] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, save_finished, save_reset),
@@ -1443,6 +1409,6 @@ qk_tap_dance_action_t tap_dance_actions[] = {
 [TD_Find] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, find_finished, find_reset),
 [TD_OneshotMode] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, oneshotMode_finished, oneshotMode_reset),
 [TD_F12_F5] = ACTION_TAP_DANCE_FN_ADVANCED(NULL,browser_finished, browser_reset),
-[TD_COMMENT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL,comment_finished, NULL),
+[TD_COMMENT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL,comment_finished, NULL)
 };
 

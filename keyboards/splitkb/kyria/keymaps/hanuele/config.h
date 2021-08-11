@@ -16,12 +16,12 @@
 
 #pragma once
 
-/* USB Device descriptor parameter */
-#define VENDOR_ID       0xFEED
-#define PRODUCT_ID      0x0000
-#define DEVICE_VER      0x0001
-#define MANUFACTURER    splitkb
-#define PRODUCT         Kyria Keyboard
+// Here you find the flash statements for left and right side. This is not necessary for all changes: https://github.com/foureight84/sofle-keyboard-pimoroni
+#define EE_HANDS
+
+#ifdef OLED_DRIVER_ENABLE
+  #define OLED_DISPLAY_128X64
+#endif
 
 #ifndef NO_DEBUG
 #define NO_DEBUG
@@ -46,26 +46,22 @@
 #define MOUSEKEY_WHEEL_TIME_TO_MAX 17
 
 
-#ifdef OLED_DRIVER_ENABLE
-  #define OLED_DISPLAY_128X64
-#endif
-
 #ifdef RGBLIGHT_ENABLE
-  #define RGBLIGHT_HUE_STEP 8
-  #define RGBLIGHT_SAT_STEP 8
-  #define RGBLIGHT_VAL_STEP 8
-  #define RGBLIGHT_SLEEP
+#    define RGBLIGHT_SLEEP
+#    define RGBLIGHT_LIMIT_VAL 200
+#    define RGBLIGHT_HUE_STEP  8
+#    define RGBLIGHT_SAT_STEP  8
+#    define RGBLIGHT_VAL_STEP  8
+#    define RGBLIGHT_SPLIT
   #define RGBLIGHT_DEFAULT_VAL 200
-  #define RGBLIGHT_LIMIT_VAL 200
   #define RGBLIGHT_LAYERS
-  #define RGBLIGHT_MAX_LAYERS 8
+  #define RGBLIGHT_MAX_LAYER 12
 #endif
 
 // If you are using an Elite C rev3 on the slave side, uncomment the lines below:
 #define SPLIT_USB_DETECT
 #define SPLIT_USB_TIMEOUT 1000
-// Here you find the flash statements for left and right side. This is not necessary for all changes: https://github.com/foureight84/sofle-keyboard-pimoroni
-#define EE_HANDS
+
 
 // EC11K encoders have a different resolution than other EC11 encoders.
 // When using the default resolution of 4, if you notice your encoder skipping
@@ -73,11 +69,13 @@
 #define ENCODER_RESOLUTION 2
 
 #define TAPPING_TERM 175
+#define PERMISSIVE_HOLD
+#define IGNORE_MOD_TAP_INTERRUPT
+#define TAPPING_FORCE_HOLD
 
 // Allows media codes to properly register in macros and rotary encoder code
 #define TAP_CODE_DELAY 10
 
-#define IGNORE_MOD_TAP_INTERRUPT        
 
 //comment that out if your trackball is on the left side
 #define TRACKBALL_RIGHT

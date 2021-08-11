@@ -18,18 +18,8 @@
  
  
  //Personal key codes for tab dances etc.
- #define LA_NUM1 LT(_NUMB, KC_E)
- #define LA_NUM2 LT(_NUMB, KC_N)
- #define LA_SYMB1 LT(_SYMB, KC_A)
- #define LA_SYMB2 LT(_SYMB, KC_R)
- #define LA_NAV1 LT(_NAV, KC_SPC)
- #define LA_NAV2 LT(_NAV, KC_ENT)
  #define URL TD(TD_URL)
  #define FIND TD(TD_Find)
- #define LEFTA TD(TD_AL_WL)
- #define RIGHTA TD(TD_AR_WR)
- #define UPA TD(TD_AU_PU)
- #define DOWNA TD(TD_AD_PD)
  #define COPY TD(TD_Copy_Cut_Paste_WinPaste)
  #define BROWSER TD(TD_F12_F5)
  #define TALON TD(TD_TO_TM_TT)
@@ -46,7 +36,13 @@
  #define COMMA TD(TD_Comma)
  #define COMMENT TD(TD_COMMENT)
  #define ONESHOT_MOD TD(TD_OneshotMode)
- #define TOGGLE TG(1)
+ #define LT1 LT(_MOUS, KC_A)
+ #define LT2 LT(_NAV, KC_R)
+ #define LT3 LT(_RSYM, KC_E)
+ #define LT4 LT(_LSYM, KC_N)
+ #define LT5 LT(_FUNC, KC_I)
+ #define LT6 LT(_NUMB, KC_T)
+ #define LT7 LT(_AACC, KC_SPC)
  
  
  

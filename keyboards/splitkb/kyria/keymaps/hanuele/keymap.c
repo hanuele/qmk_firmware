@@ -15,7 +15,6 @@
 */
 #include QMK_KEYBOARD_H
 #include "sendstring_german.h"
-#include "oneshot.h"
 //import own defined keycodes. this is a german layout. but importing the german header file did result in an error, so I skipped it and just translated the keys.
 #include "hanuele.h"
 
@@ -38,13 +37,8 @@ enum layers {
 };
 
 enum keycodes {
-    // Custom oneshot mod implementation with no timers (Code from https://github.com/precondition/dactyl-manuform-keymap).
-    OS_SHFT = SAFE_RANGE,
-    OS_CTRL,
-    OS_ALT,
-    OS_CMD,
     // Keycode for caps word (Code from https://github.com/andrewjrae/kyria-keymap#caps-word).
-    CAPS_WORD,
+    CAPS_WORD = SAFE_RANGE,
     MY_MOUSEBTN_1,
     MY_MOUSEBTN_2,
     MY_MOUSEBTN_3
@@ -97,10 +91,6 @@ typedef struct {
 
 td_state_t cur_dance(qk_tap_dance_state_t *state);
 
-//my update routine to change rgb based on last activated mode
-void update_mode_rgb(void);
-
-
 // For the x tap dance. Put it here so it can be used in any keymap
 void copy_finished(qk_tap_dance_state_t *state, void *user_data);
 void copy_reset(qk_tap_dance_state_t *state, void *user_data);
@@ -137,9 +127,6 @@ void find_reset(qk_tap_dance_state_t *state, void *user_data);
 void save_finished(qk_tap_dance_state_t *state, void *user_data);
 void save_reset(qk_tap_dance_state_t *state, void *user_data);
 
-void oneshotMode_finished(qk_tap_dance_state_t *state, void *user_data);
-void oneshotMode_reset(qk_tap_dance_state_t *state, void *user_data);
-
 void browser_finished(qk_tap_dance_state_t *state, void *user_data);
 void browser_reset(qk_tap_dance_state_t *state, void *user_data);
 
@@ -153,38 +140,38 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * ,-------------------------------------------.                              ,-------------------------------------------.
  * |  Play  |  X   |  V   |  L   |  C   |  W   |                              |   K  |   H  |   G  |   F  |   Q  |CtrlAltD|
  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
- * |  ESC   |U-SHFT| I-LT5| A-LT1| E-LT3|  O   |                              |   S  |N-LT4 |R-LT2 |T-LT6 |D-SHFT|  Y de  |
+ * |  ESC   |  U   |I-SHFT| A-LT1| E-LT3|  O   |                              |   S  |N-LT4 |R-LT2 |T-SHFT|   D  |  Y de  |
  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
- * |  Play  |Ü-CTRL|Ö-ALT |  Ä   |  P   |  Z   |      |F12/F5|  | Talon|      |   B  |   M  |,-LALT|.-CTRL|   J  |  ß de  |
+ * |  Play  |  Ü   |Ö-CTRL| Ä-ALT|P-LT5 |  Z   |      |F12/F5|  | Talon|      |   B  |M-LT6 |,-RALT|.-CTRL|   J  |  ß de  |
  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
- *                        |Enpass|      | BSPC |      | Caps |  |      | Save |  LT7 |      |      |
+ *                        |Enpass|Co/Pa | BSPC |Co/Pa |MOUSE1|  | Caps | Save |  LT7 |      |      |
  *                        |      |      |      |      |      |  |      |      |SPACE |      |      |
  *                        `----------------------------------'  `----------------------------------'
  */
      [_NEO2] = LAYOUT(
        KC_MPLY, KC_X,KC_V,KC_L,KC_C,KC_W,                                     KC_K,KC_H,KC_G,KC_F,KC_Q,C(A(KC_DEL)),
-       KC_ESC, LSFT_T(KC_U), LT5, LT1, LT3, KC_O,                                     KC_S, LT4, LT2, LT6, LSFT_T(KC_D),KC_Z,
-       KC_MPLY, LCTL_T(KC_LBRC), LALT_T(KC_SCLN), KC_QUOT,KC_P,KC_Y, _______, BROWSER, TALON,_______,  KC_B, KC_M, COMMA, PERIOD, KC_J,KC_MINS,
-                                  C(A(KC_E)), _______, DELETE, _______, CAPSLOCK, ONESHOT, SAVE, LT7, _______, _______
+       KC_ESC, KC_U, LSFT_T(KC_I), LT1, LT3, KC_O,                                     KC_S, LT4, LT2, RSFT_T(KC_T), KC_D,KC_Z,
+       KC_MPLY, KC_LBRC, LCTL_T(KC_SCLN), LALT_T(KC_QUOT),LT5,KC_Y, _______, BROWSER, TALON,_______, KC_B,LT6 , COMMA, PERIOD, KC_J,KC_MINS,
+                                  C(A(KC_E)), COPY, DELETE, COPY, MY_MOUSEBTN_1, CAPSLOCK, SAVE, LT7, _______, _______
      ),
  /*
   * Layer 1: Mouse
   *
   * ,-------------------------------------------.                              ,-------------------------------------------.
-  * |        |      |      |      |      |      |                              |      |MOUSE1| W-UP |MOUSE2|      |        |
+  * |        |      |      |      |      |      |                              |      |MOUSE1|MOUSE3|MOUSE2|      |        |
   * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
-  * |        |      |MOUSE1|      |MOUSE2|      |                              |      |M-LEFT|M-DOWN| M-UP |M-RGHT|        |
+  * |        |      |LSHIFT|      |MOUSE1|      |                              |W-LEFT|M-LEFT| M-UP |M-RGHT|W-RGHT|        |
   * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-  * |        |      |      |      |MOUSE3|      |      |      |  |      |      |      |W-LEFT|W-DOWN|W-RGHT|      |        |
+  * |        |      |      |      |MOUSE2|      |      |      |  |      |      |      |W-DOWN|M-DOWN|W-RGHT|      |        |
   * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
   *                        |      |      |      |      |      |  |      |      |      |      |      |
   *                        |      |      |      |      |      |  |      |      |      |      |      |
   *                        `----------------------------------'  `----------------------------------'
   */
      [_MOUS] = LAYOUT(
-       _______, _______, _______, _______, _______, _______,                                     _______, MY_MOUSEBTN_1, KC_WH_U, MY_MOUSEBTN_2, _______, _______,
-       _______, _______, MY_MOUSEBTN_1, _______, MY_MOUSEBTN_2, _______,                                     _______, KC_MS_L, KC_MS_D, KC_MS_U, KC_MS_R, _______,
-       _______, _______, _______, _______, MY_MOUSEBTN_3, _______, _______, _______, _______, _______, _______, KC_WH_L, KC_WH_D, KC_WH_R, _______, _______,
+       _______, _______, _______, _______, _______, _______,                                     _______, MY_MOUSEBTN_1, MY_MOUSEBTN_3, MY_MOUSEBTN_2, _______, _______,
+       _______, _______, KC_LSFT, _______, MY_MOUSEBTN_1, _______,                                     KC_WH_L, KC_MS_L, KC_MS_U, KC_MS_R, KC_WH_R, _______,
+       _______, _______, _______, _______, MY_MOUSEBTN_2, _______, _______, _______, _______, _______, _______, KC_WH_D, KC_MS_D, KC_WH_U, _______, _______,
                                   _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
      ),
 
@@ -192,29 +179,29 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   * Layer 2: Navigation
   *
   * ,-------------------------------------------.                              ,-------------------------------------------.
-  * |        |      |      |PAGEUP|      |      |                              |      |      |      |      |      |        |
+  * |        |      |PAGEUP|      |PAGEDW|      |                              |      |      |      |      |      |        |
   * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
-  * |        | LEFT |  UP  | DOWN | RIGHT|      |                              |      | LGUI |      |C_S_T |LCTL_T|        |
+  * |        |      | LEFT |  UP  | RIGHT|      |                              |      | LGUI |      |C_S_T |      |        |
   * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-  * |        |      | HOME |PAGEDW|  END |      |      |      |  |      |      |      |      |      |      |      |        |
+  * |        |      | HOME | DOWN |  END |      |      |      |  |      |      |      |      |      |      |      |        |
   * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
   *                        |      |      |      |      |      |  |      |      |      |      |      |
   *                        |      |      |      |      |      |  |      |      |      |      |      |
   *                        `----------------------------------'  `----------------------------------'
   */
      [_NAV] = LAYOUT(
-       _______, _______, _______, KC_PGUP, _______, _______,                                     _______, _______, _______, _______, _______, _______,
-       _______, KC_LEFT, KC_UP, KC_DOWN, KC_RIGHT, _______,                                     _______, KC_LGUI, _______,C_S_T(KC_TAB),LCTL_T(KC_ENT), _______,
-       _______, _______, _______, KC_PGDOWN, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+       _______, _______, KC_PGUP, _______, KC_PGDOWN, _______,                                     _______, _______, _______, _______, _______, _______,
+       _______, _______, KC_LEFT, KC_UP, KC_RIGHT, _______,                                     _______, KC_LGUI, _______,C_S_T(KC_TAB),_______,_______ ,
+       _______, _______, KC_HOME, KC_DOWN, KC_END, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
                                   _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
      ),
  /*
   * Layer 3: Right symbols
   *
   * ,-------------------------------------------.                              ,-------------------------------------------.
-  * |        |      |      |      |      |      |                              |      |      |   =  |      |      |        |
+  * |        |      |      |      |      |      |                              |      |   <  |   =  |  >   |      |        |
   * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
-  * |        |  &   |  ~   |  *   |      |      |                              |      |  (   |  )   |   -  |   @  |        |
+  * |        |  &   |  $   |  *   |      |      |                              |      |  (   |  )   |   -  |   @  |        |
   * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
   * |        |      |      |      |      |      |      |      |  |      |      |      |   +  |  %   |COMMEN|   €  |        |
   * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
@@ -223,8 +210,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   *                        `----------------------------------'  `----------------------------------'
   */
      [_RSYM] = LAYOUT(
-       _______, _______, _______, _______, _______, _______,                                     _______, _______, S(KC_0), _______, _______, _______,
-       _______, S(KC_6), ALGR(KC_RBRC), S(KC_MINS), _______, _______,                                     _______, PARENS, PARENSR, KC_SLSH, ALGR(KC_Q),_______,
+       _______, _______, _______, _______, _______, _______,                                     _______, KC_NUBS, S(KC_0), S(KC_NUBS), _______, _______,
+       _______, S(KC_6), S(KC_4), S(KC_MINS), _______, _______,                                     _______, PARENS, PARENSR, KC_SLSH, ALGR(KC_Q),_______,
        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_RBRC, S(KC_5),COMMENT , ALGR(KC_E), _______,
                                   _______, _______, _______, S(KC_2), _______, _______, S(KC_SLSH), _______, _______, _______
      ),
@@ -232,20 +219,20 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   * Layer 4: Left symbols
   *
     ,-------------------------------------------.                              ,-------------------------------------------.
-  * |        |      |      |      |      |      |                              |      |      |      |      |      |        |
+  * |        |      |      |      |      |  ^   |                              |      |      |      |      |      |        |
   * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
-  * |    `   |  \   |  /   |  {   |  }   |      |                              |      |      |  ?   |  !   |  ^   |        |
+  * |        |  \   |  /   |  {   |  }   |  `   |                              |      |      |  ?   |  !   |   #  |        |
   * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-  * |        |  #   |  $   |  |   |  '   |  `   |      |      |  |      |      |      |      |      |      |      |        |
+  * |        |      |  ~   |  |   |  '   |  `   |      |      |  |      |      |      |      |      |      |      |        |
   * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
   *                        |      |      |      |   "  |      |  |      |   _  |      |      |      |
   *                        |      |      |      |      |      |  |      |      |      |      |      |
   *                        `----------------------------------'  `----------------------------------'
   */
      [_LSYM] = LAYOUT(
-       _______, _______, _______, _______, _______, _______,                                     _______, _______, _______, _______, _______, _______,
-       ALGR(KC_MINS), S(KC_7), BRACES, BRACESR, S(KC_RBRC), _______,                                     _______, _______, S(KC_MINS), S(KC_1), KC_GRV, _______,
-       KC_EQL, KC_NUHS, S(KC_4), ALGR(KC_NUBS), QUOTES, S(KC_EQL), _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+       _______, _______, _______, _______, _______, KC_GRV,                                     _______, _______, _______, _______, _______, _______,
+       _______,ALGR(KC_MINS), S(KC_7), BRACES, BRACESR,KC_EQL,                                     _______, _______, S(KC_MINS), S(KC_1), KC_NUHS, _______,
+       _______, _______, ALGR(KC_RBRC), ALGR(KC_NUBS), QUOTES, S(KC_EQL), _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
                                   _______, _______, _______, S(KC_2), _______, _______, S(KC_SLSH), _______, _______, _______
      ),
  /*
@@ -292,20 +279,20 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   * Layer 7: Always accessible
   *
   * ,-------------------------------------------.                              ,-------------------------------------------.
-  * |        |      | Manic| URL  |      |      |                              |      |      | ReoT |DupTab|      |        |
+  * |        |      |      | Manic|      |      |                              |      |      |DupTab| ReoT |      | RESET  |
   * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
-  * |        | ESC  | UNDO | REDO |ENTER | Find |                              |      | DF1  | TabL | TabR |CloseT| Mute   |
+  * |        | ESC  | UNDO | URL  | REDO | Find |                              |      | TabL |CloseT| TabR |      | Mute   |
   * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-  * |        |      |Screen|      |Co/Pa |      |      |      |  |      |      |      | DF0  |      |      | RESET |        |
+  * |        |      |Screen|      |Co/Pa |      |      |      |  |      |      |      |      |      |      |      |        |
   * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
   *                        |      |      | TAB  |      |      |  |      |      |      |      |      |
   *                        |      |      |      |      |      |  |      |      |      |      |      |
   *                        `----------------------------------'  `----------------------------------'
   */
      [_AACC] = LAYOUT(
-       _______, _______, A(C(S(KC_W))), URL, _______, _______,                                     _______, _______, C(S(KC_T)), C(S(KC_K)), _______, _______,
-       _______, KC_ESC, C(KC_Y), C(KC_Z), KC_ENT, FIND,                                     _______, DF(_MOUS), S(C(KC_TAB)), C(KC_TAB), C(KC_W), KC_MUTE,
-       _______, _______, LSG(KC_S), _______, COPY, _______, _______, _______, _______, _______, _______, DF(_NEO2), _______, _______, _______, _______,
+       _______, _______, _______, A(C(S(KC_W))), _______, _______,                                      _______,_______, C(S(KC_K)), C(S(KC_T)),_______, RESET,
+       _______, KC_ESC, C(KC_Y), URL, C(KC_Z), FIND,                                      _______, S(C(KC_TAB)), C(KC_W), C(KC_TAB),_______, KC_MUTE,
+       _______, _______, LSG(KC_S), _______, COPY, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
                                   _______, _______, KC_TAB, _______, _______, _______, _______, _______, _______, _______
      )
 };
@@ -451,6 +438,11 @@ void process_caps_word(uint16_t keycode, const keyrecord_t *record) {
                 // If chording mods, disable caps word
                 if (record->event.pressed && (get_mods() != MOD_LSFT) && (get_mods() != 0)) {caps_word_disable();}
                 break;
+            case KC_SPC:
+                if (record->event.pressed) {
+                    caps_word_disable();
+                }
+                break;
             default:
                 // Any other keycode should automatically disable caps
                 if (record->event.pressed) {caps_word_disable();}
@@ -458,49 +450,55 @@ void process_caps_word(uint16_t keycode, const keyrecord_t *record) {
         }
     }
 }
+#ifdef COMBO_ENABLE
+enum combo_events {
+  ZC_DF0,
+  ZC_DF1,
+  ZC_ENTER,
+  ZC_ENTER1,
 
+};
+const uint16_t PROGMEM df1_combo[] = {LALT_T(KC_QUOT),LT5, COMBO_END};
+const uint16_t PROGMEM df0_combo[] = {LALT_T(KC_QUOT),MY_MOUSEBTN_2, COMBO_END};
+const uint16_t PROGMEM enter_combo[] = {LT6 , COMMA, COMBO_END};
+const uint16_t PROGMEM enter1_combo[] = {KC_WH_D, KC_MS_D, COMBO_END};
+
+combo_t key_combos[COMBO_COUNT] = {
+  [ZC_DF1] = COMBO_ACTION(df1_combo),
+  [ZC_DF0] = COMBO_ACTION(df0_combo),
+  [ZC_ENTER] = COMBO_ACTION(enter_combo),
+  [ZC_ENTER1] = COMBO_ACTION(enter1_combo), 
+};
+
+void process_combo_event(uint16_t combo_index, bool pressed) {
+  
+  switch(combo_index) {
+    case ZC_DF0:
+      if (pressed) {
+        default_layer_set(1UL<<_NEO2);
+      }
+      break;
+    case ZC_DF1:
+      if (pressed) {
+        default_layer_set(1UL<<_MOUS);
+      }
+      break;
+
+    case ZC_ENTER:
+    case ZC_ENTER1:
+      if (pressed) {
+        tap_code(KC_ENT);
+      }
+      break;
+  }
+}
+#endif
 bool is_alt_tab_active = false;
 uint16_t alt_tab_timer = 0;
 
-bool is_oneshot_cancel_key(uint16_t keycode) {
-    switch (keycode) {
-        case LT7:
-        case LT4:
-        case LT3:
-        return true;
-    default:
-        return false;
-    }
-}
-
-bool is_oneshot_ignored_key(uint16_t keycode) {
-    switch (keycode) {
-        case LT2:
-        case LT5:
-        case LT1:
-        case ONESHOT_MOD:
-        case OS_SHFT:
-        case OS_CTRL:
-        case OS_ALT:
-        case OS_CMD: 
-            return true;
-        default:
-            return false;
-    }
-}
-
-oneshot_state os_shft_state = os_up_unqueued;
-oneshot_state os_ctrl_state = os_up_unqueued;
-oneshot_state os_alt_state = os_up_unqueued;
-oneshot_state os_cmd_state = os_up_unqueued;
 
 //main routine once a key is pressed.
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-
-    update_oneshot(&os_shft_state, KC_LSFT, OS_SHFT,keycode, record);
-    update_oneshot(&os_ctrl_state, KC_LCTL, OS_CTRL,keycode, record);
-    update_oneshot(&os_alt_state, KC_LALT, OS_ALT,keycode, record);
-    update_oneshot(&os_cmd_state, KC_LGUI, OS_CMD,keycode, record);
     
     process_caps_word(keycode, record);
     #ifdef PIMORONI_TRACKBALL_ENABLE
@@ -566,19 +564,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             break;
     }
-    update_mode_rgb();
+
     return true;
 }
 
-void update_mode_rgb(void) {
-    uint8_t mods;
-    #ifdef RGBLIGHT_LAYERS
-    mods = mod_config(get_mods());
+void matrix_scan_keymap(void) {
+    uint8_t mods = mod_config(get_mods());
     rgblight_set_layer_state(8, mods & MOD_MASK_SHIFT);
     rgblight_set_layer_state(9, mods & MOD_MASK_CTRL);
     rgblight_set_layer_state(10, mods & MOD_MASK_ALT);
     rgblight_set_layer_state(11, mods & MOD_MASK_GUI);
-    #endif    
 }
 
 void matrix_scan_user(void) {
@@ -660,7 +655,7 @@ void oled_task_user(void) {
 #ifdef RGBLIGHT_LAYERS
 const rgblight_segment_t PROGMEM neo2_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_MAGENTA});
 const rgblight_segment_t PROGMEM mous_layers[] = RGBLIGHT_LAYER_SEGMENTS({10, 20, HSV_BLUE});
-const rgblight_segment_t PROGMEM nav_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 9, HSV_BLUE});
+const rgblight_segment_t PROGMEM nav_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_BLUE});
 const rgblight_segment_t PROGMEM lsym_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 9, HSV_GREEN});
 const rgblight_segment_t PROGMEM rsym_layers[] = RGBLIGHT_LAYER_SEGMENTS({10, 20, HSV_GREEN});
 const rgblight_segment_t PROGMEM func_layers[] = RGBLIGHT_LAYER_SEGMENTS({10, 20, HSV_RED});
@@ -715,17 +710,14 @@ layer_state_t default_layer_state_set_user(layer_state_t state) {
 
     return state;
 }
-
 layer_state_t layer_state_set_user(layer_state_t state) {
 
 #ifdef RGBLIGHT_LAYERS
-    for (int i = _NAV; i < 8; i++) {
+    for (int i = _NAV; i < 12; i++) {
         rgblight_set_layer_state(i, layer_state_cmp(state, i));
     }
 #endif
 #ifdef PIMORONI_TRACKBALL_ENABLE
-
-
         switch (get_highest_layer(state | default_layer_state)) {
         case _NEO2:
             trackball_set_rgbw(rgb_brightness, 0, rgb_brightness,0);
@@ -754,7 +746,6 @@ layer_state_t layer_state_set_user(layer_state_t state) {
         default: //  for any other layers, or the default layer
             trackball_set_rgbw(0, 0, rgb_brightness,0);
             break;
-
     }
 #endif
 
@@ -767,47 +758,33 @@ bool encoder_update_user(uint8_t index, bool clockwise){
     if (index == 0) {
         switch (biton32(layer_state)) {
             case _NEO2:
-                if (!(mod_state & MOD_MASK_SHIFT)) {
                 // History scrubbing.
-                    if (clockwise) {
-                        tap_code16(C(KC_Y));
-                    } else {
-                        tap_code16(C(KC_Z));
-                    }
+                if (clockwise) {
+                    tap_code16(C(KC_Y));
                 } else {
-                    //navigate word left and right
-                    if (clockwise) {
-                        tap_code16(C(KC_RIGHT));
-                    } else {
-                        tap_code16(C(KC_LEFT));
-                    }
+                    tap_code16(C(KC_Z));
                 }
                 break;
             case _NAV:
-                if (!(mod_state & MOD_MASK_SHIFT)) {
-                    // Switch between windows on Windows with alt tab.
-                    if (clockwise) {
-                        tap_code16(S(KC_TAB));
-                    } else {
-                        if (!is_alt_tab_active) {
-                            is_alt_tab_active = true;
-                            register_code(KC_LALT);
-                        }
-                        alt_tab_timer = timer_read();
-                        tap_code16(KC_TAB);
-                    }
+                if (clockwise) {
+                    tap_code(KC_PGDN);
                 } else {
-                    //tab navigation in chromium based browsers
-                    //as shift is activated, i deactivate it,  then tap ctrl tab then activate shift again.
-                    set_mods(mod_state);
-                    clear_weak_mods();
-                    del_mods(MOD_MASK_SHIFT);
-                    if (clockwise) {
-                        tap_code16(C(S(KC_G)));
-                    } else {
-                        tap_code16(C(KC_G));
-                    }
-                    set_mods(mod_state);
+                    tap_code(KC_PGUP);
+                }
+                break;
+            case _LSYM:
+                if (clockwise) {
+                    tap_code16(C(S(KC_G)));
+                } else {
+                    tap_code16(C(KC_G));
+                }
+                break;
+            case _NUMB:
+                // Volume control.
+                if (clockwise) {
+                    tap_code(KC_VOLU);
+                } else {
+                    tap_code(KC_VOLD);
                 }
                 break;
             default:
@@ -827,41 +804,38 @@ bool encoder_update_user(uint8_t index, bool clockwise){
     } else if (index == 1) {
         switch (biton32(layer_state)) {
             case _NEO2:
-                // Scrolling with PageUp and PgDn.
                 if (!clockwise) {
-                    tap_code(KC_PGDN);
+                    tap_code16(C(KC_RIGHT));
                 } else {
-                    tap_code(KC_PGUP);
+                    tap_code16(C(KC_LEFT));
                 }
                 break;
-            case _NAV:
-                //using shift to enable more functionalit on the same layer
-                if (!(mod_state & MOD_MASK_SHIFT)) {
-                    // Zoom
-                    if (!clockwise) {
-                        tap_code16(C(KC_PPLS));
-                    } else {
-                        tap_code16(C(KC_PMNS));
-                    }
-                } else {
-                    //tab navigation in chromium based browsers
-                    if (!clockwise) {
-                        tap_code16(C(KC_TAB));                       
-                    } else {
-                        //as shift is activated, i deactivate it,  then tap ctrl tab then activate shift again.
-                        clear_weak_mods();
-                        del_mods(MOD_MASK_SHIFT);
-                        tap_code16(C(KC_TAB));
-                        set_mods(mod_state);
-                    }
-                }
-                break;    
-            default:
-                // Volume control.
+            case _MOUS:
                 if (!clockwise) {
-                    tap_code(KC_VOLU);
+                    tap_code16(KC_WBAK);
                 } else {
-                    tap_code(KC_VOLD);
+                    tap_code16(KC_WFWD);
+                }
+            case _RSYM:
+                if (clockwise) {
+                    tap_code16(C(S(KC_TAB)));
+                } else {
+                    tap_code16(C(KC_TAB));
+                }
+                break;
+            case _FUNC:
+                if (clockwise) {
+                    tap_code16(KC_MPRV);
+                } else {
+                    tap_code16(KC_MNXT);
+                }
+                break;
+            default:
+            // Zoom
+                if (!clockwise) {
+                    tap_code16(C(KC_PPLS));
+                } else {
+                    tap_code16(C(KC_PMNS));
                 }
                 break;
         }
@@ -1104,7 +1078,7 @@ void del_finished(qk_tap_dance_state_t *state, void *user_data) {
                 tap_code(KC_BSPC); register_code(KC_BSPC);
             } else {
                 clear_weak_mods();
-                unregister_mods(MOD_BIT(KC_LSFT));
+                unregister_mods(MOD_BIT(KC_RSFT));
                 tap_code(KC_DEL); register_code(KC_DEL);
                 set_mods(mod_state);
             }
@@ -1268,7 +1242,7 @@ void find_finished(qk_tap_dance_state_t *state, void *user_data) {
         case TD_SINGLE_HOLD: tap_code16(C(KC_C));tap_code16(C(S(KC_NUBS)));tap_code16(C(KC_V));tap_code(KC_ENTER);break;//custom global search for selected text
         case TD_DOUBLE_HOLD: tap_code16(C(KC_C));tap_code16(C(KC_F));tap_code16(C(KC_V));tap_code(KC_ENTER);break;//search for selected text
         case TD_DOUBLE_SINGLE_TAP: break;
-        case TD_TRIPLE_TAP: break;// tap_code16(C(KC_F));SEND_STRING("/\\b[0-9a-f]{8}\\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\\b[0-9a-f]{12}\\b/" SS_TAP(X_ENTER) );break;//search for unique identifier regex in codemirror search
+        case TD_TRIPLE_TAP: tap_code16(C(KC_F));SEND_STRING("/\\b[0-9a-f]{8}\\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\\b[0-9a-f]{12}\\b/" SS_TAP(X_ENTER) );break;//search for unique identifier regex in codemirror search
         case TD_UNKNOWN: break;
         case TD_NONE: break;
     }
@@ -1310,40 +1284,6 @@ void save_reset(qk_tap_dance_state_t *state, void *user_data) {
         case TD_DOUBLE_HOLD: break;
         case TD_DOUBLE_SINGLE_TAP: unregister_code(KC_TAB);break;
         case TD_TRIPLE_TAP: break;
-        case TD_UNKNOWN: break;
-        case TD_NONE: break;
-    }
-    xtap_state.state = TD_NONE;
-}
-//for key press simulation 
-keyrecord_t pressed = {{{0,0},true,0}, {0,0,0,0,0}};
-keyrecord_t released = {{{0,0},false,0}, {0,0,0,0,0}};
-
-//one shot mode tap dance, my own invention (or better say hack)
-void oneshotMode_finished(qk_tap_dance_state_t *state, void *user_data) {
-    xtap_state.state = cur_dance(state);
-    switch (xtap_state.state) {
-        case TD_DOUBLE_TAP: update_oneshot(&os_shft_state, KC_LSFT, OS_SHFT,OS_SHFT, &pressed);break;
-        case TD_SINGLE_HOLD: update_oneshot(&os_ctrl_state, KC_LCTL, OS_CTRL,OS_CTRL, &pressed);break;
-        case TD_SINGLE_TAP: update_oneshot(&os_alt_state, KC_LALT, OS_ALT,OS_ALT, &pressed);break;
-        case TD_DOUBLE_HOLD: update_oneshot(&os_cmd_state, KC_LGUI, OS_CMD,OS_CMD, &pressed);break;
-        case TD_DOUBLE_SINGLE_TAP: break;
-        case TD_TRIPLE_TAP: update_oneshot(&os_ctrl_state, KC_LCTL, OS_CTRL,OS_CTRL, &pressed);update_oneshot(&os_ctrl_state, KC_LCTL, OS_CTRL,OS_CTRL, &pressed);break;
-        case TD_UNKNOWN: break;
-        case TD_NONE: break;
-    }
-    //update the rgb color
-    update_mode_rgb();
-}              
-
-void oneshotMode_reset(qk_tap_dance_state_t *state, void *user_data) {
-    switch (xtap_state.state) {
-        case TD_DOUBLE_TAP: update_oneshot(&os_shft_state, KC_LSFT, OS_SHFT,OS_SHFT, &released);break;
-        case TD_SINGLE_TAP: update_oneshot(&os_alt_state, KC_LALT, OS_ALT,OS_ALT, &released);break;
-        case TD_SINGLE_HOLD: update_oneshot(&os_ctrl_state, KC_LCTL, OS_CTRL,OS_CTRL, &released);break;
-        case TD_DOUBLE_HOLD: update_oneshot(&os_cmd_state, KC_LGUI, OS_CMD,OS_CMD, &released);break;
-        case TD_DOUBLE_SINGLE_TAP: break;
-        case TD_TRIPLE_TAP: update_oneshot(&os_ctrl_state, KC_LCTL, OS_CTRL,OS_CTRL, &released);update_oneshot(&os_ctrl_state, OS_SHFT, OS_SHFT,OS_CTRL, &released);break;
         case TD_UNKNOWN: break;
         case TD_NONE: break;
     }
@@ -1407,7 +1347,6 @@ qk_tap_dance_action_t tap_dance_actions[] = {
 [TD_Comma] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, comma_finished, comma_reset),
 [TD_Caps] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, caps_finished, caps_reset),
 [TD_Find] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, find_finished, find_reset),
-[TD_OneshotMode] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, oneshotMode_finished, oneshotMode_reset),
 [TD_F12_F5] = ACTION_TAP_DANCE_FN_ADVANCED(NULL,browser_finished, browser_reset),
 [TD_COMMENT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL,comment_finished, NULL)
 };

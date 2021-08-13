@@ -24,7 +24,6 @@
  #define BROWSER TD(TD_F12_F5)
  #define TALON TD(TD_TO_TM_TT)
  #define DELETE TD(TD_Bspc_Del_Delwl_Delwr)
- #define ONESHOT TD(TD_OneshotMode)
  #define SAVE TD(TD_Tab_CtrlS)
  #define CAPSLOCK TD(TD_Caps)
  #define BRACES TD(TD_LBrace_Braces_Tag)
@@ -40,8 +39,8 @@
  #define LT2 LT(_NAV, KC_R)
  #define LT3 LT(_RSYM, KC_E)
  #define LT4 LT(_LSYM, KC_N)
- #define LT5 LT(_FUNC, KC_I)
- #define LT6 LT(_NUMB, KC_T)
+ #define LT5 LT(_FUNC, KC_P)
+ #define LT6 LT(_NUMB, KC_M)
  #define LT7 LT(_AACC, KC_SPC)
  
  

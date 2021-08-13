@@ -55,7 +55,7 @@
 #    define RGBLIGHT_SPLIT
   #define RGBLIGHT_DEFAULT_VAL 200
   #define RGBLIGHT_LAYERS
-  #define RGBLIGHT_MAX_LAYER 12
+  #define RGBLIGHT_MAX_LAYER 16
 #endif
 
 // If you are using an Elite C rev3 on the slave side, uncomment the lines below:
@@ -76,7 +76,8 @@
 // Allows media codes to properly register in macros and rotary encoder code
 #define TAP_CODE_DELAY 10
 
-
+#define COMBO_TERM 50
+#define COMBO_COUNT 4
 //comment that out if your trackball is on the left side
 #define TRACKBALL_RIGHT
 

@@ -21,7 +21,8 @@ BLUETOOTH_ENABLE = no      # Enable Bluetooth with the Adafruit EZ-Key HID
 AUDIO_ENABLE = no          # Audio output on port C6
 SPLIT_KEYBOARD = yes       # Split common
 NKRO_ENABLE = no          # USB Nkey Rollover
-
+NO_USB_STARTUP_CHECK = yes
+DYNAMIC_MACRO_ENABLE = no
 PIMORONI_TRACKBALL_ENABLE = yes
 
 ifeq ($(strip $(PIMORONI_TRACKBALL_ENABLE)), yes)

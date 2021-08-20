@@ -59,8 +59,8 @@
 #endif
 
 // If you are using an Elite C rev3 on the slave side, uncomment the lines below:
-#define SPLIT_USB_DETECT
-#define SPLIT_USB_TIMEOUT 1000
+//#define SPLIT_USB_DETECT
+//#define SPLIT_USB_TIMEOUT 1000
 
 
 // EC11K encoders have a different resolution than other EC11 encoders.
@@ -77,7 +77,7 @@
 #define TAP_CODE_DELAY 10
 
 #define COMBO_TERM 50
-#define COMBO_COUNT 4
+#define COMBO_COUNT 26
 //comment that out if your trackball is on the left side
 #define TRACKBALL_RIGHT
 

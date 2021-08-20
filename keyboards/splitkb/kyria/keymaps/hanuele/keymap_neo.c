@@ -17,7 +17,7 @@
 #include "sendstring_german.h"
 //import own defined keycodes. this is a german layout. but importing the german header file did result in an error, so I skipped it and just translated the keys.
 #include "hanuele.h"
-#include "oneshot.h"
+
 
 #ifdef PIMORONI_TRACKBALL_ENABLE
 #include "pointing_device.h"
@@ -26,7 +26,7 @@
 
 // My layers
 enum layers {
-    _PUQ = 0,
+    _NEO2 = 0,
     _MOUS,
     _NAV,
     _RSYM,
@@ -38,12 +38,8 @@ enum layers {
 };
 
 enum keycodes {
-    OS_SHFT = SAFE_RANGE,
-    OS_CTRL,
-    OS_ALT,
-    OS_CMD,
     // Keycode for caps word (Code from https://github.com/andrewjrae/kyria-keymap#caps-word).
-    CAPS_WORD,
+    CAPS_WORD = SAFE_RANGE,
     MY_MOUSEBTN_1,
     MY_MOUSEBTN_2,
     MY_MOUSEBTN_3,
@@ -63,14 +59,14 @@ uint8_t mod_state;
 uint8_t oneshot_mod_state;
 uint16_t last_keycode;
 
-oneshot_state os_shft_state = os_up_unqueued;
-oneshot_state os_ctrl_state = os_up_unqueued;
-oneshot_state os_alt_state = os_up_unqueued;
-oneshot_state os_cmd_state = os_up_unqueued;
-
 // Tap Dance declarations
 enum {
+    TD_LParen_Parens_Func,
+    TD_RParen_Parens_Func,
+    TD_LBrace_Braces_Tag,
+    TD_RBrace_Braces_Tag, 
     TD_Quotes,
+    TD_Tab_CtrlS,
     TD_Bspc_Del_Delwl_Delwr,
     TD_Find,
     TD_OneshotMode,
@@ -94,9 +90,14 @@ typedef struct {
 } td_tap_t;
 
 td_state_t cur_dance(qk_tap_dance_state_t *state);
-//my update routine to change rgb based on last activated mode
-void update_mode_rgb(void); 
+
 // For the x tap dance. Put it here so it can be used in any keymap
+
+void paren_finishedl(qk_tap_dance_state_t *state, void *user_data);
+void paren_resetl(qk_tap_dance_state_t *state, void *user_data);
+
+void braces_finishedl(qk_tap_dance_state_t *state, void *user_data);
+void braces_resetl(qk_tap_dance_state_t *state, void *user_data);
 
 void quotes_finished(qk_tap_dance_state_t *state, void *user_data);
 void quotes_reset(qk_tap_dance_state_t *state, void *user_data);
@@ -106,6 +107,9 @@ void del_reset(qk_tap_dance_state_t *state, void *user_data);
 
 void find_finished(qk_tap_dance_state_t *state, void *user_data);
 void find_reset(qk_tap_dance_state_t *state, void *user_data);
+
+void save_finished(qk_tap_dance_state_t *state, void *user_data);
+void save_reset(qk_tap_dance_state_t *state, void *user_data);
 
 void comment_finished(qk_tap_dance_state_t *state, void *user_data);
 
@@ -118,19 +122,40 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * ,-------------------------------------------.                              ,-------------------------------------------.
  * |  Play  |  p   |  u   |  j   |   c  |  q   |                              |      |   g  |   l  |  m   |   f  |CtrlAltD|
  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
- * |  ESC   |  h   |i-SHFT| e-LT1| a-LT3|  O   |                              |   d  |t-LT4 |r-LT2 |n-SHFT|   s  |  Enter |
+ * |  ESC   |  h   |i-SHFT| e-LT1| a-LT3|  O   |                              |   d  |t-LT4 |r-LT2 |n-SHFT|   s  |        |
  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
- * |        |  k   |y-CTRL| .-ALT|,-LT5 |  x   |  Cut |REPEAT|  |Screen|      |      |v-LT6 |w-RALT|b-CTRL|   z  |  ß de  |
+ * |  Play  |  k   |y-CTRL| .-ALT|,-LT5 |  x   |  Cut |REPEAT|  |Screen|      |      |v-LT6 |w-RALT|b-CTRL|   z  |  ß de  |
  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
- *                        |Enpass| Find | LT7  | Copy | Paste|  | Caps | Tab  | BSPC | F24  | F22  |
+ *                        |Enpass| Find | LT7  | Copy | Paste|  | Caps | Save | BSPC | F24  | F22  |
  *                        |      |      | SPACE|      |      |  |      |      |      |      |      |
  *                        `----------------------------------'  `----------------------------------'
-  */
-      [_PUQ] = LAYOUT(
+ 
+      [_NEO2] = LAYOUT(
        KC_MPLY, KC_P,KC_U,KC_J,KC_C,KC_Q,                                     _______,KC_G,KC_L,KC_M,KC_F,C(A(KC_DEL)),
-       KC_ESC, KC_H, LSFT_T(KC_I), LT1A, LT3A, KC_O,                                     KC_D, LT4A, LT2A, RSFT_T(KC_N), KC_S,KC_ENTER,
-       _______, KC_K, LCTL_T(KC_Z), LALT_T(KC_DOT),LT5A,KC_X, C(KC_X), REPEAT,  LSG(KC_S),XXXXXXX, KC_J,LT6A , LALT_T(KC_W), RCTL_T(KC_B), KC_Y,KC_MINS,
-                                  C(A(KC_E)), FIND, LT7, C(KC_C), C(KC_V), KC_CAPS, KC_TAB, DELETE, KC_F24, KC_F22
+       KC_ESC, KC_H, LSFT_T(KC_I), LT1A, LT3A, KC_O,                                     _______, LT4A, LT2A, RSFT_T(KC_N), KC_S,_______,
+       KC_MPLY, KC_K, LCTL_T(KC_Y), LALT_T(KC_DOT),LT5A,KC_X, C(KC_X), REPEAT,  LSG(KC_S),XXXXXXX, KC_J,LT6A , RALT_T(KC_W), RCTL_T(KC_B), KC_Z,KC_MINS,
+                                  C(A(KC_E)), FIND, LT7, C(KC_C), C(KC_V), KC_CAPS, SAVE, DELETE, KC_F24, KC_F22
+     ),
+ */
+/*
+ * Layer 0: Base Layer
+ *
+ * ,-------------------------------------------.                              ,-------------------------------------------.
+ * |  Play  |  X   |  V   |  L   |  C   |  W   |                              |   K  |   H  |   G  |   F  |   Q  |CtrlAltD|
+ * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
+ * |  ESC   |  U   |I-SHFT| A-LT1| E-LT3|  O   |                              |   S  |N-LT4 |R-LT2 |T-SHFT|   D  |  Y de  |
+ * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
+ * |  Play  |  Ü   |Ö-CTRL| Ä-ALT|P-LT5 |  Z   |  Cut |REPEAT|  |Screen|      |   B  |M-LT6 |,-RALT|.-CTRL|   J  |  ß de  |
+ * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
+ *                        |Enpass| Find | LT7  | Copy | Paste|  | Caps | Save | BSPC | F24  | F22  |
+ *                        |      |      | SPACE|      |      |  |      |      |      |      |      |
+ *                        `----------------------------------'  `----------------------------------'
+ */
+     [_NEO2] = LAYOUT(
+       KC_MPLY, KC_X,KC_V,KC_L,KC_C,KC_W,                                     KC_K,KC_H,KC_G,KC_F,KC_Q,C(A(KC_DEL)),
+       KC_ESC, KC_U, LSFT_T(KC_I), LT1, LT3, KC_O,                                     KC_S, LT4, LT2, RSFT_T(KC_T), KC_D,KC_Z,
+       KC_MPLY, KC_LBRC, LCTL_T(KC_SCLN), LALT_T(KC_QUOT),LT5,KC_Y,C(KC_X), REPEAT,  LSG(KC_S), XXXXXXX, KC_B,LT6 , LALT_T(KC_COMMA), RCTL_T(KC_DOT), KC_J,KC_MINS,
+                                  C(A(KC_E)), FIND, LT7, C(KC_C), C(KC_V), KC_CAPS, SAVE, DELETE, KC_F24, KC_F22
      ),
  /*
   * Layer 1: Mouse
@@ -159,7 +184,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   * ,-------------------------------------------.                              ,-------------------------------------------.
   * |        |      |PAGEUP|      |PAGEDW|      |                              |      |      |      |      |      |        |
   * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
-  * |        |      | LEFT |  UP  | RIGHT|      |                              |      | LGUI |      |C_S_T | RSFT |        |
+  * |        |      | LEFT |  UP  | RIGHT|      |                              |      | LGUI |      |      |C_S_T |        |
   * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
   * |        |      | HOME | DOWN |  END |      |      |      |  |      |      |      |      |      |      |      |        |
   * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
@@ -169,7 +194,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   */
      [_NAV] = LAYOUT(
        _______, _______, KC_PGUP, _______, KC_PGDOWN, _______,                                     _______, _______, _______, _______, _______, _______,
-       _______, _______, KC_LEFT, KC_UP, KC_RIGHT, _______,                                     _______, OS_CMD, _______,C_S_T(KC_TAB),KC_RSFT,_______ ,
+       _______, _______, KC_LEFT, KC_UP, KC_RIGHT, _______,                                     _______, KC_LGUI, _______,_______,C_S_T(KC_TAB),_______ ,
        _______, _______, KC_HOME, KC_DOWN, KC_END, _______, _______, _______, XXXXXXX, _______, _______, _______, _______, _______, _______, _______,
                                   _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
      ),
@@ -179,9 +204,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   * ,-------------------------------------------.                              ,-------------------------------------------.
   * |        |      |      |      |      |      |                              |      |   <  |   =  |  >   |      |        |
   * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
-  * |        |  &   |  $   |  *   |      |      |                              |      |  (   |  )   |  -   |   @  |        |
+  * |        |  &   |  $   |  *   |      |      |                              |      |  {   |  }   |  -   |   @  |        |
   * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-  * |        |      |      |      |      |      |      |      |  |      |      |      |  [   |  ]   |  +   |   €  |        |
+  * |        |      |      |      |      |      |      |      |  |      |      |      |COMMEN|  %   |  +   |   €  |        |
   * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
   *                        |      |      |   "  |      |      |  |      |      |   _  |      |      |
   *                        |      |      |      |      |      |  |      |      |      |      |      |
@@ -189,8 +214,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   */
      [_RSYM] = LAYOUT(
        _______, _______, _______, _______, _______, _______,                                     _______, KC_NUBS, S(KC_0), S(KC_NUBS), _______, _______,
-       _______, S(KC_6), S(KC_4), S(KC_RBRC), _______, _______,                                     _______, S(KC_8), S(KC_9), KC_SLSH, ALGR(KC_Q),_______,
-       _______, _______, _______, _______, _______, _______, _______, _______, _______, XXXXXXX, _______, ALGR(KC_8), ALGR(KC_9),KC_RBRC , ALGR(KC_E), _______,
+       _______, S(KC_6), S(KC_4), S(KC_RBRC), _______, _______,                                     _______, BRACES, BRACESR, KC_SLSH, ALGR(KC_Q),_______,
+       _______, _______, _______, _______, _______, _______, _______, _______, _______, XXXXXXX, _______, COMMENT, S(KC_5),KC_RBRC , ALGR(KC_E), _______,
                                   _______, _______,  S(KC_2),_______, _______, _______, _______,S(KC_SLSH), _______, _______
      ),
  /*
@@ -199,9 +224,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ,-------------------------------------------.                              ,-------------------------------------------.
   * |        |      |      |      |      |  ^   |                              |      |      |      |      |      |        |
   * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
-  * |        |  \   |  /   |  {   |  }   |  `   |                              |      |      |  ?   |  !   |   #  |        |
+  * |        |  \   |  /   |  (   |  )   |  `   |                              |      |      |  ?   |  !   |   #  |        |
   * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-  * |        |   %  |  ~   |  |   |  '   |  `   |      |      |  |      |      |      |      |      |      |      |        |
+  * |        |      |  ~   |  |   |  '   |  `   |      |      |  |      |      |      |      |      |      |      |        |
   * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
   *                        |      |      |   "  |      |      |  |      |      |   _  |      |      |
   *                        |      |      |      |      |      |  |      |      |      |      |      |
@@ -209,8 +234,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   */
      [_LSYM] = LAYOUT(
        _______, _______, _______, _______, _______, KC_GRV,                                     _______, _______, _______, _______, _______, _______,
-       _______,ALGR(KC_MINS), S(KC_7), ALGR(KC_7), ALGR(KC_0),KC_EQL,                                     _______, _______, S(KC_MINS), S(KC_1), KC_NUHS, _______,
-       _______, S(KC_5), ALGR(KC_RBRC), ALGR(KC_NUBS), QUOTES, S(KC_EQL), _______, _______, _______, XXXXXXX, _______, _______, _______, _______, _______, _______,
+       _______,ALGR(KC_MINS), S(KC_7), PARENS, PARENSR,KC_EQL,                                     _______, _______, S(KC_MINS), S(KC_1), KC_NUHS, _______,
+       _______, _______, ALGR(KC_RBRC), ALGR(KC_NUBS), QUOTES, S(KC_EQL), _______, _______, _______, XXXXXXX, _______, _______, _______, _______, _______, _______,
                                   _______, _______,  S(KC_2),_______, _______, _______, _______,S(KC_SLSH), _______, _______
      ),
  /*
@@ -223,7 +248,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
   * |        |      |      |      |      |      |      |      |  |      |      |      |  F1  |  F2  |  F3  |  F12 |        |
   * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
-  *                        |      |      |      |      |      |  |      | SF5  | F12  |      |      |
+  *                        |      |      |      |      |      |  |      | F21  | F23  |      |      |
   *                        |      |      |      |      |      |  |      |      |      |      |      |
   *                        `----------------------------------'  `----------------------------------'
   */
@@ -231,7 +256,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
        _______, _______, _______, _______, _______, _______,                                     _______, KC_F7, KC_F8, KC_F9, KC_F10, _______,
        _______, _______, _______,C(KC_LALT), _______, _______,                                  _______, KC_F4, KC_F5, KC_F6, KC_F11, _______,
        _______, _______, _______, _______, _______, _______, _______, _______, _______, XXXXXXX, _______, KC_F1, KC_F2, KC_F3, KC_F12, _______,
-                                  _______, _______, _______, _______, _______, _______, S(KC_F5), KC_F12, _______, _______
+                                  _______, _______, _______, _______, _______, _______, KC_F21, KC_F23, _______, _______
      ),
  /*
   * Layer 6: Numbers
@@ -270,13 +295,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      [_AACC] = LAYOUT(
        _______, _______, _______, A(C(S(KC_W))), _______, _______,                                      _______,C(KC_W),GO_CL , C(S(KC_T)),_______, RESET,
        _______, KC_ESC, C(KC_Y), _______, C(KC_Z), _______,                                      GO_ID, S(C(KC_TAB)), SELECT_ID, C(KC_TAB), C(S(KC_K)), KC_MUTE,
-       TO(_MOUS), TO(_PUQ),_______, LSG(KC_S), C(KC_G), _______, _______, _______, _______, XXXXXXX, _______, KC_WWW_BACK, GO_URL, KC_WWW_FORWARD, _______, _______,
+       TO(_MOUS), TO(_NEO2),_______, LSG(KC_S), C(KC_G), _______, _______, _______, _______, XXXXXXX, _______, KC_WWW_BACK, GO_URL, KC_WWW_FORWARD, _______, _______,
                                   _______, _______, KC_TAB, _______, _______, _______, _______, _______, _______, _______
      )
 };
 
 #ifdef PIMORONI_TRACKBALL_ENABLE
-
+// {{{
 #include "timer.h"
 #include "quantum/quantum.h"
 #include "i2c_master.h"
@@ -296,7 +321,7 @@ void matrix_init_user() {
     trackball_init();
 }
 
-void update_member(int8_t* member, int16_t* offset) {
+void update_member(int8_t* member, int16_t* offset) {//{{{
     if (*offset > 63) {
         *member = 63;
         *offset -= 63;
@@ -340,7 +365,7 @@ void pointing_device_task() {
                     tap_code16(KC_F22);
                 }
                 mouse_auto_layer_timer = timer_read();
-            } else if (layer_state_is(_AACC)) {
+            } else if (layer_state_is(_NUMB) || layer_state_is(_FUNC)) {
 
                 v_offset -= state.x * state.x * SIGN(state.x) ;
                 if (!is_trackball_active) {
@@ -463,7 +488,7 @@ void process_caps_word(uint16_t keycode, const keyrecord_t *record) {
         }
     }
 }
-   
+  //sn-sz, x zu ü, ux-ü, y zu ö, oz-ö,iy-j, q zu ä, aq-ä, f12 zu linksleer, cof12-winpaste, mouse3 zu obenrechtsleer, m1m2-m3, rcomma-semi, tdot-colon, gr-k, ft-h,   
 #ifdef COMBO_ENABLE
 enum combo_events {
   ZC_DF0,
@@ -471,86 +496,40 @@ enum combo_events {
   ZC_ENTER,
   ZC_ENTER1,
   ZC_MOUSE1,
-  ZC_MOUSE1DUB,
-  ZC_MOUSE1P,
   ZC_MOUSE2,
   ZC_MOUSE3,
   ZC_WINPASTE,
   ZC_PASTE,
   ZC_COMBO,
   ZC_OSLSFT,
-  ZC_OSRSFT,
-  ZC_OSLCTR,
-  ZC_OSRCTR,
-  ZC_OSLALT,
-  ZC_OSRALT,
-  ZC_AE,
-  ZC_OE,
-  ZC_UE,
-  ZC_ONESHOT_RSYM,
-  ZC_ONESHOT_LSYM,
-  ZC_PAREN,
-  ZC_BRACE,
-  ZC_SQUARE,
+  ZC_OSRSFT
 };
-const uint16_t PROGMEM df1_combo[] = {LALT_T(KC_DOT),LT5A, COMBO_END};
-const uint16_t PROGMEM df0_combo[] = {LALT_T(KC_DOT),MY_MOUSEBTN_2, COMBO_END};
-const uint16_t PROGMEM enter_combo[] = {LT6A , LALT_T(KC_W), COMBO_END};
+const uint16_t PROGMEM df1_combo[] = {LALT_T(KC_QUOT),LT5, COMBO_END};
+const uint16_t PROGMEM df0_combo[] = {LALT_T(KC_QUOT),MY_MOUSEBTN_2, COMBO_END};
+const uint16_t PROGMEM enter_combo[] = {LT6 , LALT_T(KC_COMMA), COMBO_END};
 const uint16_t PROGMEM enter1_combo[] = {KC_WH_D, KC_MS_D, COMBO_END};
-const uint16_t PROGMEM mouse3_combo[] = {LT7, LT1A, COMBO_END};
-const uint16_t PROGMEM mouse1_combo[] = {LT7, LT3A, COMBO_END};
-const uint16_t PROGMEM mouse1dub_combo[] = {LT7, LT5A, COMBO_END};
-const uint16_t PROGMEM mouse1p_combo[] = {LT7, LALT_T(KC_DOT), COMBO_END};
-const uint16_t PROGMEM oneshotmod_rsft[] = {LT4A, LT2A, COMBO_END};
-const uint16_t PROGMEM oneshotmod_lsft[] = {LT1A, LT3A, COMBO_END};
-const uint16_t PROGMEM oneshotmod_rctrl[] = {LALT_T(KC_W), RCTL_T(KC_B), COMBO_END};
-const uint16_t PROGMEM oneshotmod_lctrl[] = {LCTL_T(KC_Z), LALT_T(KC_DOT), COMBO_END};
-const uint16_t PROGMEM oneshotmod_ralt[] = {LT4A, RSFT_T(KC_N), COMBO_END};
-const uint16_t PROGMEM oneshotmod_lalt[] = {LSFT_T(KC_I), LT3A, COMBO_END};
-const uint16_t PROGMEM mouse2_combo[] = {LT7, LSFT_T(KC_I), COMBO_END};
+const uint16_t PROGMEM mouse2_combo[] = {LT1, LALT_T(KC_QUOT), COMBO_END};
+const uint16_t PROGMEM mouse1_combo[] = {LT3, LT5, COMBO_END};
+const uint16_t PROGMEM oneshotmod_rsft[] = {LT4, LT2, COMBO_END};
+const uint16_t PROGMEM oneshotmod_lsft[] = {LT1, LT3, COMBO_END};
+const uint16_t PROGMEM mouse3_combo[] = {KC_C, LT3, COMBO_END};
 const uint16_t PROGMEM winpaste_combo[] = {LSG(KC_S),KC_CAPS, COMBO_END};
 const uint16_t PROGMEM paste_combo[] = {C(KC_X), C(KC_C), COMBO_END};
-const uint16_t PROGMEM caps_combo [] = {KC_U, KC_J, COMBO_END};
-const uint16_t PROGMEM ae_combo[] = {LT5A, LT3A, COMBO_END};
-const uint16_t PROGMEM oe_combo[] = {KC_O, KC_X, COMBO_END};
-const uint16_t PROGMEM ue_combo[] = {LT1A, LALT_T(KC_DOT), COMBO_END};
-const uint16_t PROGMEM lsym_combo[] = {LT2A, RSFT_T(KC_N), COMBO_END};
-const uint16_t PROGMEM rsym_combo[] = {LSFT_T(KC_I), LT1A, COMBO_END};
-const uint16_t PROGMEM paren_combo[] = {S(KC_8), S(KC_9), COMBO_END};
-const uint16_t PROGMEM brace_combo[] = {ALGR(KC_7), ALGR(KC_0), COMBO_END};
-const uint16_t PROGMEM square_combo[] = {ALGR(KC_8), ALGR(KC_9), COMBO_END};
+const uint16_t PROGMEM caps_combo [] = {LSFT_T(KC_I), LT3, COMBO_END};
 combo_t key_combos[COMBO_COUNT] = {
   [ZC_DF1] = COMBO_ACTION(df1_combo),
   [ZC_DF0] = COMBO_ACTION(df0_combo),
   [ZC_ENTER] = COMBO_ACTION(enter_combo),
   [ZC_ENTER1] = COMBO_ACTION(enter1_combo), 
   [ZC_MOUSE1] = COMBO_ACTION(mouse1_combo),
-  [ZC_MOUSE1DUB] = COMBO_ACTION(mouse1dub_combo),
-  [ZC_MOUSE1P] = COMBO_ACTION(mouse1p_combo),
   [ZC_MOUSE2] = COMBO_ACTION(mouse2_combo),
   [ZC_MOUSE3] = COMBO_ACTION(mouse3_combo),
   [ZC_WINPASTE] = COMBO_ACTION(winpaste_combo),
   [ZC_PASTE] = COMBO_ACTION(paste_combo),
   [ZC_COMBO] = COMBO_ACTION(caps_combo),
   [ZC_OSLSFT] = COMBO_ACTION(oneshotmod_lsft),
-  [ZC_OSRSFT] = COMBO_ACTION(oneshotmod_rsft),
-  [ZC_OSLCTR] = COMBO_ACTION(oneshotmod_lctrl),
-  [ZC_OSRCTR] = COMBO_ACTION(oneshotmod_rctrl),
-  [ZC_OSRALT] = COMBO_ACTION(oneshotmod_ralt),
-  [ZC_OSLALT] = COMBO_ACTION(oneshotmod_lalt),
-  [ZC_AE] = COMBO_ACTION(ae_combo),
-  [ZC_OE] = COMBO_ACTION(oe_combo),
-  [ZC_UE] = COMBO_ACTION(ue_combo),
-  [ZC_ONESHOT_LSYM] = COMBO_ACTION(lsym_combo),
-  [ZC_ONESHOT_RSYM] = COMBO_ACTION(rsym_combo),
-  [ZC_PAREN] = COMBO_ACTION(paren_combo),
-  [ZC_BRACE] = COMBO_ACTION(brace_combo),
-  [ZC_SQUARE] = COMBO_ACTION(square_combo),
+  [ZC_OSRSFT] = COMBO_ACTION(oneshotmod_rsft)
 };
-    
-//for key press simulation 
-keyrecord_t pressed_key = {{{0,0},true,0}, {0,0,0,0,0}};
-keyrecord_t released_key = {{{0,0},false,0}, {0,0,0,0,0}};
 
 void process_combo_event(uint16_t combo_index, bool pressed) {
 #ifdef PIMORONI_TRACKBALL_ENABLE
@@ -560,7 +539,7 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
   switch(combo_index) {
     case ZC_DF0:
       if (pressed) {
-        layer_move(_PUQ);
+        layer_move(_NEO2);
       }
       break;
     case ZC_DF1:
@@ -568,20 +547,7 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
         layer_move(_MOUS);
       }
       break;
-    case ZC_ONESHOT_LSYM:
-      if (pressed) {
-        set_oneshot_layer(_LSYM, ONESHOT_START);
-      }else{
-        clear_oneshot_layer_state(ONESHOT_PRESSED);
-      }
-      break;
-    case ZC_ONESHOT_RSYM:
-      if (pressed) {
-        set_oneshot_layer(_RSYM, ONESHOT_START);
-      }else{
-        clear_oneshot_layer_state(ONESHOT_PRESSED);
-      }
-      break;
+
     case ZC_ENTER:
     case ZC_ENTER1:
       if (pressed) {
@@ -597,16 +563,6 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
         unregister_code(KC_BTN1);
       }
       break;
-    case ZC_MOUSE1DUB:
-      if (pressed) {
-        tap_code(KC_BTN1);tap_code(KC_BTN1);tap_code16(C(KC_C));
-      }
-      break;
-    case ZC_MOUSE1P:
-      if (pressed) {
-        tap_code(KC_BTN1);tap_code(KC_BTN1);tap_code16(C(KC_V));
-      }
-      break;
     case ZC_MOUSE2:
       if (pressed) {
         register_code(KC_BTN2);
@@ -615,7 +571,7 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
       }
       break;
     case ZC_MOUSE3:
-        if(!layer_state_is(_PUQ)||(mod_state & MOD_MASK_SHIFT)){
+        if(!layer_state_is(_NEO2)||(mod_state & MOD_MASK_SHIFT)){
             pressed?register_code(KC_BTN3):unregister_code(KC_BTN3);
         }else{
             #ifdef PIMORONI_TRACKBALL_ENABLE
@@ -652,80 +608,12 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
         break;
     case ZC_OSLSFT:
         if (pressed) {
-            update_oneshot(&os_shft_state, KC_LSFT, OS_SHFT,OS_SHFT, &pressed_key);
-        }else{
-            update_oneshot(&os_shft_state, KC_LSFT, OS_SHFT,OS_SHFT, &released_key);
+            set_oneshot_mods(MOD_BIT(KC_RSFT));
         }
         break;
     case ZC_OSRSFT:
         if (pressed) {
-            update_oneshot(&os_shft_state, KC_LSFT, OS_SHFT,OS_SHFT, &pressed_key);
-        }else{
-            update_oneshot(&os_shft_state, KC_LSFT, OS_SHFT,OS_SHFT, &released_key);
-        }
-        break;
-    case ZC_OSLCTR:
-        if (pressed) {
-            update_oneshot(&os_ctrl_state, KC_LCTL, OS_CTRL,OS_CTRL, &pressed_key);
-        }else{
-            update_oneshot(&os_ctrl_state, KC_LCTL, OS_CTRL,OS_CTRL, &released_key);
-        }
-        break;
-    case ZC_OSRCTR:
-        if (pressed) {
-            update_oneshot(&os_ctrl_state, KC_LCTL, OS_CTRL,OS_CTRL, &pressed_key);
-        }else{
-            update_oneshot(&os_ctrl_state, KC_LCTL, OS_CTRL,OS_CTRL, &released_key);
-        }
-        break;
-    case ZC_OSLALT:
-        if (pressed) {
-            update_oneshot(&os_alt_state, KC_LALT, OS_ALT,OS_ALT, &pressed_key);
-        }else{
-            update_oneshot(&os_alt_state, KC_LALT, OS_ALT,OS_ALT, &released_key);
-        }
-        break;
-    case ZC_OSRALT:
-        if (pressed) {
-            update_oneshot(&os_alt_state, KC_LALT, OS_ALT,OS_ALT, &pressed_key);
-        }else{
-            update_oneshot(&os_alt_state, KC_LALT, OS_ALT,OS_ALT, &released_key);
-        }
-        break;
-    case ZC_AE:
-      if (pressed) {
-        register_code(KC_QUOT);
-      }else{
-        unregister_code(KC_QUOT);
-      }
-      break;
-    case ZC_OE:
-      if (pressed) {
-        register_code(KC_SCLN);
-      }else{
-        unregister_code(KC_SCLN);
-      }
-      break;
-    case ZC_UE:
-      if (pressed) {
-        register_code(KC_LBRC);
-      }else{
-        unregister_code(KC_LBRC);
-      }
-      break;
-    case ZC_PAREN:
-        if (pressed) {
-            SEND_STRING("()" SS_TAP(X_LEFT)); 
-        }
-        break;
-    case ZC_SQUARE:
-        if (pressed) {
-            SEND_STRING("[]" SS_TAP(X_LEFT));
-        }
-        break;
-    case ZC_BRACE:
-        if (pressed) {
-            SEND_STRING("{}" SS_TAP(X_LEFT));
+            set_oneshot_mods(MOD_BIT(KC_LSFT));
         }
         break;
   }
@@ -734,40 +622,11 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
 bool is_alt_tab_active = false;
 uint16_t alt_tab_timer = 0;
 
-bool is_oneshot_cancel_key(uint16_t keycode) {
-    switch (keycode) {
-        case DELETE:
-        case LT7:
-        return true;
-    default:
-        return false;
-    }
-}
-
-bool is_oneshot_ignored_key(uint16_t keycode) {
-    switch (keycode) {
-        case LT3A:
-        case LT4A:
-        case LT5A:
-        case LT6A:
-        case KC_LSFT:
-        case OS_SHFT:
-        case OS_CTRL:
-        case OS_ALT:
-        case OS_CMD:        
-            return true;
-        default:
-            return false;
-    }
-}
 
 //main routine once a key is pressed.
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     
-    update_oneshot(&os_shft_state, KC_LSFT, OS_SHFT,keycode, record);
-    update_oneshot(&os_ctrl_state, KC_LCTL, OS_CTRL,keycode, record);
-    update_oneshot(&os_alt_state, KC_LALT, OS_ALT,keycode, record);
-    update_oneshot(&os_cmd_state, KC_LGUI, OS_CMD,keycode, record);
+    process_repeat_key(keycode, record);
     #ifdef PIMORONI_TRACKBALL_ENABLE
     report_mouse_t currentReport = {};
     #endif
@@ -822,23 +681,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             break;
     }
-    update_mode_rgb();
+
     return true;
 }
 
 void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
     process_caps_word(keycode, record);
-    process_repeat_key(keycode, record);
 }
-void update_mode_rgb(void) {
-    uint8_t mods;
-    #ifdef RGBLIGHT_LAYERS
-    mods = mod_config(get_mods());
+void matrix_scan_keymap(void) {
+    uint8_t mods = mod_config(get_mods());
     rgblight_set_layer_state(8, mods & MOD_MASK_SHIFT);
     rgblight_set_layer_state(9, mods & MOD_MASK_CTRL);
     rgblight_set_layer_state(10, mods & MOD_MASK_ALT);
     rgblight_set_layer_state(11, mods & MOD_MASK_GUI);
-    #endif    
 }
 
 void matrix_scan_user(void) {
@@ -876,7 +731,7 @@ static void render_status(void) {
     // Host Keyboard Layer Status
     oled_write_P(PSTR("Layer: "), false);
     switch (get_highest_layer(layer_state)) {
-        case _PUQ:
+        case _NEO2:
             oled_write_P(PSTR("Neo\n"), false);break;
         case _NAV:
             oled_write_P(PSTR("Nav\n"), false);break;
@@ -959,7 +814,7 @@ void keyboard_post_init_user(void) {
 }
 layer_state_t default_layer_state_set_user(layer_state_t state) {
     #ifdef RGBLIGHT_LAYERS
-    rgblight_set_layer_state(0, layer_state_cmp(state, _PUQ));
+    rgblight_set_layer_state(0, layer_state_cmp(state, _NEO2));
     rgblight_set_layer_state(1, layer_state_cmp(state, _MOUS));
     #endif
 
@@ -968,13 +823,13 @@ layer_state_t default_layer_state_set_user(layer_state_t state) {
 layer_state_t layer_state_set_user(layer_state_t state) {
 
 #ifdef RGBLIGHT_LAYERS
-    for (int i = _PUQ; i < 12; i++) {
+    for (int i = _NEO2; i < 12; i++) {
         rgblight_set_layer_state(i, layer_state_cmp(state, i));
     }
 #endif
 #ifdef PIMORONI_TRACKBALL_ENABLE
         switch (get_highest_layer(state | default_layer_state)) {
-        case _PUQ:
+        case _NEO2:
             trackball_set_rgbw(rgb_brightness, 0, rgb_brightness,0);
             break;
         case _MOUS:
@@ -1027,7 +882,7 @@ bool encoder_update_user(uint8_t index, bool clockwise){
                     tap_code16(C(KC_G));
                 }
                 break;
-            case _PUQ:
+            case _NEO2:
                 // Volume control.
                 if (clockwise) {
                     tap_code(KC_VOLU);
@@ -1051,7 +906,7 @@ bool encoder_update_user(uint8_t index, bool clockwise){
         }
     } else if (index == 1) {
         switch (biton32(layer_state)) {
-            case _PUQ:
+            case _NEO2:
                 // Switch between windows on Windows with alt tab.
                 if (clockwise) {
                     tap_code16(S(KC_TAB));
@@ -1115,6 +970,57 @@ static td_tap_t xtap_state = {
     .state = TD_NONE
 };
 
+void paren_finishedl(qk_tap_dance_state_t *state, void *user_data) {
+    xtap_state.state = cur_dance(state);
+    switch (xtap_state.state) {
+        case TD_SINGLE_TAP: SEND_STRING("()" SS_TAP(X_LEFT)); break;
+        case TD_DOUBLE_HOLD: register_code16(ALGR(KC_8)); break;
+        case TD_SINGLE_HOLD: SEND_STRING("[]" SS_TAP(X_LEFT)); break;
+        case TD_DOUBLE_TAP: register_code16(S(KC_8)); break; 
+        case TD_DOUBLE_SINGLE_TAP: tap_code16(S(KC_8)); register_code16(S(KC_8));break;
+        case TD_UNKNOWN: break;
+        case TD_NONE: break;
+    }
+}
+
+void paren_resetl(qk_tap_dance_state_t *state, void *user_data) {
+    switch (xtap_state.state) {
+        case TD_SINGLE_TAP: break;
+        case TD_DOUBLE_HOLD: unregister_code16(ALGR(KC_8)); break;
+        case TD_SINGLE_HOLD: break;
+        case TD_DOUBLE_TAP: unregister_code16(S(KC_8)); break;
+        case TD_DOUBLE_SINGLE_TAP: unregister_code16(S(KC_8)); break;
+        case TD_UNKNOWN: break;
+        case TD_NONE: break;
+    }
+    xtap_state.state = TD_NONE;
+}
+
+void braces_finishedl(qk_tap_dance_state_t *state, void *user_data) {
+    xtap_state.state = cur_dance(state);
+    switch (xtap_state.state) {
+        case TD_SINGLE_TAP: SEND_STRING("{}" SS_TAP(X_LEFT)); break;
+        case TD_SINGLE_HOLD: SEND_STRING("<>" SS_TAP(X_LEFT)); break;
+        case TD_DOUBLE_TAP: register_code16(ALGR(KC_7)); break;
+        case TD_DOUBLE_HOLD: register_code16(KC_NUBS); break;
+        case TD_DOUBLE_SINGLE_TAP: tap_code16(ALGR(KC_7)); register_code16(ALGR(KC_7));break;
+        case TD_UNKNOWN: break;
+        case TD_NONE: break;
+    }
+}
+
+void braces_resetl(qk_tap_dance_state_t *state, void *user_data) {
+    switch (xtap_state.state) {
+        case TD_SINGLE_TAP: break;
+        case TD_SINGLE_HOLD: break;
+        case TD_DOUBLE_TAP: unregister_code16(ALGR(KC_7)); break;
+        case TD_DOUBLE_HOLD: unregister_code16(KC_NUBS); break;
+        case TD_DOUBLE_SINGLE_TAP: unregister_code16(ALGR(KC_7)); break;
+        case TD_UNKNOWN: break;
+        case TD_NONE: break;
+    }
+    xtap_state.state = TD_NONE;
+}
 //tap_code(KC_COMMA);tap_code16(S(KC_NUHS));tap_code16(C(KC_V));SEND_STRING("' --"); break;//custom code for packaging
 void quotes_finished(qk_tap_dance_state_t *state, void *user_data) {
     xtap_state.state = cur_dance(state);
@@ -1231,9 +1137,56 @@ void find_reset(qk_tap_dance_state_t *state, void *user_data) {
     xtap_state.state = TD_NONE;
 }
 
+void save_finished(qk_tap_dance_state_t *state, void *user_data) {
+    xtap_state.state = cur_dance(state);
+    switch (xtap_state.state) {
+        case TD_SINGLE_TAP: register_code(KC_TAB);break;
+        case TD_SINGLE_HOLD: tap_code16(C(KC_S));break;//save file
+        case TD_DOUBLE_TAP: tap_code16(C(KC_DOT));break;//custom shortcut save test
+        case TD_DOUBLE_HOLD: tap_code16(C(KC_A));tap_code16(S(KC_TAB));break;//custom shortcut make pretty
+        case TD_DOUBLE_SINGLE_TAP: tap_code(KC_TAB);register_code(KC_TAB);break;
+        case TD_UNKNOWN: break;
+        case TD_NONE: break;
+    }
+}              
+
+void save_reset(qk_tap_dance_state_t *state, void *user_data) {
+    switch (xtap_state.state) {
+        case TD_SINGLE_TAP: unregister_code(KC_TAB);break;
+        case TD_SINGLE_HOLD: break;
+        case TD_DOUBLE_TAP: break;
+        case TD_DOUBLE_HOLD: break;
+        case TD_DOUBLE_SINGLE_TAP: unregister_code(KC_TAB);break;
+        case TD_UNKNOWN: break;
+        case TD_NONE: break;
+    }
+    xtap_state.state = TD_NONE;
+}
+
+
+
+void comment_finished(qk_tap_dance_state_t *state, void *user_data) {
+    xtap_state.state = cur_dance(state);
+    switch (xtap_state.state) {
+        case TD_SINGLE_TAP: SEND_STRING(SS_TAP(X_HOME)"//");break;
+        case TD_DOUBLE_TAP: SEND_STRING(SS_TAP(X_HOME)"--");break;
+        case TD_SINGLE_HOLD: SEND_STRING(SS_TAP(X_HOME) SS_TAP(X_DELETE) SS_TAP(X_DELETE));break;
+        case TD_DOUBLE_HOLD: break;
+        case TD_DOUBLE_SINGLE_TAP: break;
+        case TD_UNKNOWN: break;
+        case TD_NONE: break;
+    }
+}      
+
 qk_tap_dance_action_t tap_dance_actions[] = {
+[TD_LParen_Parens_Func] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, paren_finishedl, paren_resetl),
+[TD_RParen_Parens_Func] = ACTION_TAP_DANCE_DOUBLE( S(KC_9),  ALGR(KC_9)),
+[TD_RBrace_Braces_Tag] = ACTION_TAP_DANCE_DOUBLE(ALGR(KC_0),  S(KC_NUBS)),
+[TD_LBrace_Braces_Tag] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, braces_finishedl, braces_resetl),
 [TD_Quotes] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, quotes_finished, quotes_reset),
+[TD_Tab_CtrlS] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, save_finished, save_reset),
 [TD_Bspc_Del_Delwl_Delwr] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, del_finished, del_reset),
-[TD_Find] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, find_finished, find_reset)
+[TD_Find] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, find_finished, find_reset),
+[TD_COMMENT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL,comment_finished, NULL)
 };
 

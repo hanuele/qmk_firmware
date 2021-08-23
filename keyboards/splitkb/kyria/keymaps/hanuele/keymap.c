@@ -116,21 +116,21 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * Layer 0: Base Layer
  *
  * ,-------------------------------------------.                              ,-------------------------------------------.
- * |  Play  |  p   |  u   |  j   |   c  |  q   |                              |      |   g  |   l  |  m   |   f  |CtrlAltD|
+ * |  Play  |  p   |  u   |  j   |   c  |  q   |                              | Bnt1 |   g  |   l  |  m   |   f  |CtrlAltD|
  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
  * |  ESC   |  h   |i-SHFT| e-LT1| a-LT3|  O   |                              |   d  |t-LT4 |r-LT2 |n-SHFT|   s  |  Enter |
  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
- * |        |  k   |y-CTRL| .-ALT|,-LT5 |  x   |  Cut |REPEAT|  |Screen|      |      |v-LT6 |w-RALT|b-CTRL|   z  |  ß de  |
+ * |        |  k   |y-CTRL| .-ALT|,-LT5 |  x   |  Cut |REPEAT|  |Screen|      | Bnt2 |v-LT6 |w-RALT|b-CTRL|   z  |  ß de  |
  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
- *                        |Enpass| Find | LT7  | Copy | Paste|  | Caps | Tab  | BSPC | F24  | F22  |
+ *                        |Enpass| Find | LT7  | Copy | Bnt1 |  | Caps | Tab  | BSPC | F24  | F22  |
  *                        |      |      | SPACE|      |      |  |      |      |      |      |      |
  *                        `----------------------------------'  `----------------------------------'
   */
       [_PUQ] = LAYOUT(
-       KC_MPLY, KC_P,KC_U,KC_J,KC_C,KC_Q,                                     _______,KC_G,KC_L,KC_M,KC_F,C(A(KC_DEL)),
+       KC_MPLY, KC_P,KC_U,KC_J,KC_C,KC_Q,                                     MY_MOUSEBTN_1,KC_G,KC_L,KC_M,KC_F,C(A(KC_DEL)),
        KC_ESC, KC_H, LSFT_T(KC_I), LT1A, LT3A, KC_O,                                     KC_D, LT4A, LT2A, RSFT_T(KC_N), KC_S,KC_ENTER,
-       _______, KC_K, LCTL_T(KC_Z), LALT_T(KC_DOT),LT5A,KC_X, C(KC_X), REPEAT,  LSG(KC_S),XXXXXXX, KC_J,LT6A , LALT_T(KC_W), RCTL_T(KC_B), KC_Y,KC_MINS,
-                                  C(A(KC_E)), FIND, LT7, C(KC_C), C(KC_V), KC_CAPS, KC_TAB, DELETE, KC_F24, KC_F22
+       _______, KC_K, LCTL_T(KC_Z), LALT_T(KC_DOT),LT5A,KC_X, C(KC_X), REPEAT,  LSG(KC_S),XXXXXXX, MY_MOUSEBTN_2,LT6A , LALT_T(KC_W), RCTL_T(KC_B), KC_Y,KC_MINS,
+                                  C(A(KC_E)), FIND, LT7, C(KC_C), MY_MOUSEBTN_1, KC_CAPS, KC_TAB, DELETE, KC_F24, KC_F22
      ),
  /*
   * Layer 1: Mouse
@@ -335,11 +335,6 @@ void pointing_device_task() {
             if (layer_state_is(_LSYM) || layer_state_is(_RSYM)) {
                 h_offset += state.x;
                 v_offset -= state.y;
-                if (!is_trackball_active) {
-                    is_trackball_active = true;
-                    tap_code16(KC_F22);
-                }
-                mouse_auto_layer_timer = timer_read();
             } else if (layer_state_is(_AACC)) {
 
                 v_offset -= state.x * state.x * SIGN(state.x) ;
@@ -470,10 +465,8 @@ enum combo_events {
   ZC_DF1,
   ZC_ENTER,
   ZC_ENTER1,
-  ZC_MOUSE1,
   ZC_MOUSE1DUB,
   ZC_MOUSE1P,
-  ZC_MOUSE2,
   ZC_MOUSE3,
   ZC_WINPASTE,
   ZC_PASTE,
@@ -497,8 +490,7 @@ const uint16_t PROGMEM df1_combo[] = {LALT_T(KC_DOT),LT5A, COMBO_END};
 const uint16_t PROGMEM df0_combo[] = {LALT_T(KC_DOT),MY_MOUSEBTN_2, COMBO_END};
 const uint16_t PROGMEM enter_combo[] = {LT6A , LALT_T(KC_W), COMBO_END};
 const uint16_t PROGMEM enter1_combo[] = {KC_WH_D, KC_MS_D, COMBO_END};
-const uint16_t PROGMEM mouse3_combo[] = {LT7, LT1A, COMBO_END};
-const uint16_t PROGMEM mouse1_combo[] = {LT7, LT3A, COMBO_END};
+const uint16_t PROGMEM mouse3_combo[] = {LT7, LT3A, COMBO_END};
 const uint16_t PROGMEM mouse1dub_combo[] = {LT7, LT5A, COMBO_END};
 const uint16_t PROGMEM mouse1p_combo[] = {LT7, LALT_T(KC_DOT), COMBO_END};
 const uint16_t PROGMEM oneshotmod_rsft[] = {LT4A, LT2A, COMBO_END};
@@ -507,7 +499,6 @@ const uint16_t PROGMEM oneshotmod_rctrl[] = {LALT_T(KC_W), RCTL_T(KC_B), COMBO_E
 const uint16_t PROGMEM oneshotmod_lctrl[] = {LCTL_T(KC_Z), LALT_T(KC_DOT), COMBO_END};
 const uint16_t PROGMEM oneshotmod_ralt[] = {LT4A, RSFT_T(KC_N), COMBO_END};
 const uint16_t PROGMEM oneshotmod_lalt[] = {LSFT_T(KC_I), LT3A, COMBO_END};
-const uint16_t PROGMEM mouse2_combo[] = {LT7, LSFT_T(KC_I), COMBO_END};
 const uint16_t PROGMEM winpaste_combo[] = {LSG(KC_S),KC_CAPS, COMBO_END};
 const uint16_t PROGMEM paste_combo[] = {C(KC_X), C(KC_C), COMBO_END};
 const uint16_t PROGMEM caps_combo [] = {KC_U, KC_J, COMBO_END};
@@ -524,10 +515,8 @@ combo_t key_combos[COMBO_COUNT] = {
   [ZC_DF0] = COMBO_ACTION(df0_combo),
   [ZC_ENTER] = COMBO_ACTION(enter_combo),
   [ZC_ENTER1] = COMBO_ACTION(enter1_combo), 
-  [ZC_MOUSE1] = COMBO_ACTION(mouse1_combo),
   [ZC_MOUSE1DUB] = COMBO_ACTION(mouse1dub_combo),
   [ZC_MOUSE1P] = COMBO_ACTION(mouse1p_combo),
-  [ZC_MOUSE2] = COMBO_ACTION(mouse2_combo),
   [ZC_MOUSE3] = COMBO_ACTION(mouse3_combo),
   [ZC_WINPASTE] = COMBO_ACTION(winpaste_combo),
   [ZC_PASTE] = COMBO_ACTION(paste_combo),
@@ -590,13 +579,6 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
         unregister_code(KC_ENT);
       }
       break;
-    case ZC_MOUSE1:
-      if (pressed) {
-        register_code(KC_BTN1);
-      }else{
-        unregister_code(KC_BTN1);
-      }
-      break;
     case ZC_MOUSE1DUB:
       if (pressed) {
         tap_code(KC_BTN1);tap_code(KC_BTN1);tap_code16(C(KC_C));
@@ -605,13 +587,6 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
     case ZC_MOUSE1P:
       if (pressed) {
         tap_code(KC_BTN1);tap_code(KC_BTN1);tap_code16(C(KC_V));
-      }
-      break;
-    case ZC_MOUSE2:
-      if (pressed) {
-        register_code(KC_BTN2);
-      }else{
-        unregister_code(KC_BTN2);
       }
       break;
     case ZC_MOUSE3:
@@ -849,7 +824,7 @@ void matrix_scan_user(void) {
         }
     }
 #ifdef PIMORONI_TRACKBALL_ENABLE
-    if (is_trackball_active && (!layer_state_is(_FUNC) && !layer_state_is(_RSYM))) {
+    if (is_trackball_active && !layer_state_is(_AACC)) {
         if (timer_elapsed(mouse_auto_layer_timer) > MOUSE_TIMEOUT) {
             tap_code16(KC_F22);
             is_trackball_active = false;

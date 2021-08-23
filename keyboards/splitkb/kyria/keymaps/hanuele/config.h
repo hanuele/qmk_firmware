@@ -77,7 +77,7 @@
 #define TAP_CODE_DELAY 10
 
 #define COMBO_TERM 50
-#define COMBO_COUNT 26
+#define COMBO_COUNT 24
 //comment that out if your trackball is on the left side
 #define TRACKBALL_RIGHT
 

@@ -74,7 +74,8 @@ enum {
     TD_Bspc_Del_Delwl_Delwr,
     TD_Find,
     TD_OneshotMode,
-    TD_COMMENT 
+    TD_COMMENT,
+    TD_Period
 };
 
 // Trio Tap Dance (I did remove quad tap and triple hold)
@@ -107,6 +108,9 @@ void del_reset(qk_tap_dance_state_t *state, void *user_data);
 void find_finished(qk_tap_dance_state_t *state, void *user_data);
 void find_reset(qk_tap_dance_state_t *state, void *user_data);
 
+void period_finished(qk_tap_dance_state_t *state, void *user_data);
+void period_reset(qk_tap_dance_state_t *state, void *user_data);
+
 void comment_finished(qk_tap_dance_state_t *state, void *user_data);
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -120,7 +124,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
  * |  ESC   |  h   |i-SHFT| e-LT1| a-LT3|  O   |                              |   d  |t-LT4 |r-LT2 |n-SHFT|   s  |  Enter |
  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
- * |        |  k   |y-CTRL| .-ALT|,-LT5 |  x   |  Cut |REPEAT|  |Screen|      | Bnt2 |v-LT6 |w-RALT|b-CTRL|   z  |  ß de  |
+ * |        |  k   |  y   |  .   |,-LT5 |  x   |  Cut |REPEAT|  |Screen|      | Bnt2 |v-LT6 |  w   |  b   |   z  |  ß de  |
  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
  *                        |Enpass| Find | LT7  | Copy | Bnt1 |  | Caps | Tab  | BSPC | F24  | F22  |
  *                        |      |      | SPACE|      |      |  |      |      |      |      |      |
@@ -129,7 +133,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       [_PUQ] = LAYOUT(
        KC_MPLY, KC_P,KC_U,KC_J,KC_C,KC_Q,                                     MY_MOUSEBTN_1,KC_G,KC_L,KC_M,KC_F,C(A(KC_DEL)),
        KC_ESC, KC_H, LSFT_T(KC_I), LT1A, LT3A, KC_O,                                     KC_D, LT4A, LT2A, RSFT_T(KC_N), KC_S,KC_ENTER,
-       _______, KC_K, LCTL_T(KC_Z), LALT_T(KC_DOT),LT5A,KC_X, C(KC_X), REPEAT,  LSG(KC_S),XXXXXXX, MY_MOUSEBTN_2,LT6A , LALT_T(KC_W), RCTL_T(KC_B), KC_Y,KC_MINS,
+       _______, KC_K, KC_Z, PERIOD,LT5A,KC_X, C(KC_X), REPEAT,  LSG(KC_S),XXXXXXX, MY_MOUSEBTN_2,LT6A , KC_W, KC_B, KC_Y,KC_MINS,
                                   C(A(KC_E)), FIND, LT7, C(KC_C), MY_MOUSEBTN_1, KC_CAPS, KC_TAB, DELETE, KC_F24, KC_F22
      ),
  /*
@@ -486,17 +490,17 @@ enum combo_events {
   ZC_BRACE,
   ZC_SQUARE,
 };
-const uint16_t PROGMEM df1_combo[] = {LALT_T(KC_DOT),LT5A, COMBO_END};
-const uint16_t PROGMEM df0_combo[] = {LALT_T(KC_DOT),MY_MOUSEBTN_2, COMBO_END};
-const uint16_t PROGMEM enter_combo[] = {LT6A , LALT_T(KC_W), COMBO_END};
+const uint16_t PROGMEM df1_combo[] = {PERIOD,LT5A, COMBO_END};
+const uint16_t PROGMEM df0_combo[] = {PERIOD,MY_MOUSEBTN_2, COMBO_END};
+const uint16_t PROGMEM enter_combo[] = {LT6A , KC_W, COMBO_END};
 const uint16_t PROGMEM enter1_combo[] = {KC_WH_D, KC_MS_D, COMBO_END};
 const uint16_t PROGMEM mouse3_combo[] = {LT7, LT3A, COMBO_END};
 const uint16_t PROGMEM mouse1dub_combo[] = {LT7, LT5A, COMBO_END};
-const uint16_t PROGMEM mouse1p_combo[] = {LT7, LALT_T(KC_DOT), COMBO_END};
+const uint16_t PROGMEM mouse1p_combo[] = {LT7, PERIOD, COMBO_END};
 const uint16_t PROGMEM oneshotmod_rsft[] = {LT4A, LT2A, COMBO_END};
 const uint16_t PROGMEM oneshotmod_lsft[] = {LT1A, LT3A, COMBO_END};
-const uint16_t PROGMEM oneshotmod_rctrl[] = {LALT_T(KC_W), RCTL_T(KC_B), COMBO_END};
-const uint16_t PROGMEM oneshotmod_lctrl[] = {LCTL_T(KC_Z), LALT_T(KC_DOT), COMBO_END};
+const uint16_t PROGMEM oneshotmod_rctrl[] = {KC_W, KC_B, COMBO_END};
+const uint16_t PROGMEM oneshotmod_lctrl[] = {KC_Z, PERIOD, COMBO_END};
 const uint16_t PROGMEM oneshotmod_ralt[] = {LT4A, RSFT_T(KC_N), COMBO_END};
 const uint16_t PROGMEM oneshotmod_lalt[] = {LSFT_T(KC_I), LT3A, COMBO_END};
 const uint16_t PROGMEM winpaste_combo[] = {LSG(KC_S),KC_CAPS, COMBO_END};
@@ -504,7 +508,7 @@ const uint16_t PROGMEM paste_combo[] = {C(KC_X), C(KC_C), COMBO_END};
 const uint16_t PROGMEM caps_combo [] = {KC_U, KC_J, COMBO_END};
 const uint16_t PROGMEM ae_combo[] = {LT5A, LT3A, COMBO_END};
 const uint16_t PROGMEM oe_combo[] = {KC_O, KC_X, COMBO_END};
-const uint16_t PROGMEM ue_combo[] = {LT1A, LALT_T(KC_DOT), COMBO_END};
+const uint16_t PROGMEM ue_combo[] = {LT1A, PERIOD, COMBO_END};
 const uint16_t PROGMEM lsym_combo[] = {LT2A, RSFT_T(KC_N), COMBO_END};
 const uint16_t PROGMEM rsym_combo[] = {LSFT_T(KC_I), LT1A, COMBO_END};
 const uint16_t PROGMEM paren_combo[] = {S(KC_8), S(KC_9), COMBO_END};
@@ -669,21 +673,39 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
         break;
     case ZC_AE:
       if (pressed) {
-        register_code(KC_QUOT);
+        if (!(mod_state & MOD_MASK_SHIFT)) {
+            register_code(KC_QUOT);
+        }else{
+            tap_code(KC_QUOT);
+            clear_weak_mods();
+            unregister_mods(MOD_BIT(KC_LSFT));         
+        }
       }else{
         unregister_code(KC_QUOT);
       }
       break;
     case ZC_OE:
       if (pressed) {
-        register_code(KC_SCLN);
+        if (!(mod_state & MOD_MASK_SHIFT)) {
+            register_code(KC_SCLN);
+        }else{
+            tap_code(KC_SCLN);
+            clear_weak_mods();
+            unregister_mods(MOD_BIT(KC_LSFT));         
+        }
       }else{
         unregister_code(KC_SCLN);
       }
       break;
     case ZC_UE:
       if (pressed) {
-        register_code(KC_LBRC);
+        if (!(mod_state & MOD_MASK_SHIFT)) {
+            register_code(KC_LBRC);
+        }else{
+            tap_code(KC_LBRC);
+            clear_weak_mods();
+            unregister_mods(MOD_BIT(KC_LSFT));         
+        }
       }else{
         unregister_code(KC_LBRC);
       }
@@ -706,6 +728,7 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
   }
 }
 #endif
+
 bool is_alt_tab_active = false;
 uint16_t alt_tab_timer = 0;
 
@@ -721,11 +744,11 @@ bool is_oneshot_cancel_key(uint16_t keycode) {
 
 bool is_oneshot_ignored_key(uint16_t keycode) {
     switch (keycode) {
-        case LT3A:
-        case LT4A:
-        case LT5A:
-        case LT6A:
-        case KC_LSFT:
+        //case LT3A:
+        //case LT4A:
+        //case LT5A:
+        //case LT6A:
+        //case KC_LSFT:
         case OS_SHFT:
         case OS_CTRL:
         case OS_ALT:
@@ -804,6 +827,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
     process_caps_word(keycode, record);
     process_repeat_key(keycode, record);
+    
 }
 void update_mode_rgb(void) {
     uint8_t mods;
@@ -1090,7 +1114,7 @@ static td_tap_t xtap_state = {
     .state = TD_NONE
 };
 
-//tap_code(KC_COMMA);tap_code16(S(KC_NUHS));tap_code16(C(KC_V));SEND_STRING("' --"); break;//custom code for packaging
+//tap_code(KC_DOT);tap_code16(S(KC_NUHS));tap_code16(C(KC_V));SEND_STRING("' --"); break;//custom code for packaging
 void quotes_finished(qk_tap_dance_state_t *state, void *user_data) {
     xtap_state.state = cur_dance(state);
     switch (xtap_state.state) {
@@ -1155,7 +1179,7 @@ void del_finished(qk_tap_dance_state_t *state, void *user_data) {
                 tap_code(KC_BSPC); register_code(KC_BSPC);
             } else {
                 clear_weak_mods();
-                unregister_mods(MOD_BIT(KC_RSFT));
+                unregister_mods(MOD_BIT(KC_LSFT));
                 tap_code(KC_DEL); register_code(KC_DEL);
                 set_mods(mod_state);
             }
@@ -1206,9 +1230,49 @@ void find_reset(qk_tap_dance_state_t *state, void *user_data) {
     xtap_state.state = TD_NONE;
 }
 
+void period_finished(qk_tap_dance_state_t *state, void *user_data) {
+    xtap_state.state = cur_dance(state);
+    switch (xtap_state.state) {
+        case TD_SINGLE_TAP: register_code(KC_DOT);break;
+        //idea from https://github.com/precondition/dactyl-manuform-keymap. Ending a sentence with double clicked period will enter a space afterwards and trigger a oneshot mod for shift to start the next sentence with capitalized word.
+        case TD_DOUBLE_TAP:
+            /* Check that Shift is inactive */
+            if (!(get_mods() & MOD_MASK_SHIFT)) {
+                tap_code(KC_DOT);
+                tap_code(KC_SPC);
+                /* Internal code of OSM(MOD_LSFT) */
+                add_oneshot_mods(MOD_BIT(KC_LSHIFT));
+            } else {
+                // send ": " (KC_DOT + shift → ": ")
+                tap_code(KC_DOT);
+                tap_code(KC_SPC);
+            }
+            break;
+        case TD_SINGLE_HOLD: register_code(KC_DOT);break;
+        case TD_DOUBLE_HOLD: break;
+        case TD_DOUBLE_SINGLE_TAP: tap_code(KC_DOT);register_code(KC_DOT);break;
+        case TD_UNKNOWN: break;
+        case TD_NONE: break;
+    }
+}
+
+void period_reset(qk_tap_dance_state_t *state, void *user_data) {
+    switch (xtap_state.state) {
+        case TD_SINGLE_TAP: unregister_code(KC_DOT);break;
+        case TD_SINGLE_HOLD: unregister_code16(S(KC_DOT));break;
+        case TD_DOUBLE_TAP: break;
+        case TD_DOUBLE_HOLD: break;
+        case TD_DOUBLE_SINGLE_TAP:unregister_code(KC_DOT);break;
+        case TD_UNKNOWN: break;
+        case TD_NONE: break;
+    }
+    xtap_state.state = TD_NONE;
+}
+
 qk_tap_dance_action_t tap_dance_actions[] = {
 [TD_Quotes] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, quotes_finished, quotes_reset),
 [TD_Bspc_Del_Delwl_Delwr] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, del_finished, del_reset),
-[TD_Find] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, find_finished, find_reset)
+[TD_Find] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, find_finished, find_reset),
+[TD_Period] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, period_finished, period_reset)
 };
 

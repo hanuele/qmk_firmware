@@ -31,6 +31,7 @@
  #define LT5A LT(_FUNC, KC_COMMA)
  #define LT6A LT(_NUMB, KC_V)
  #define GO_URL C(KC_L)
+ #define PERIOD TD(TD_Period)
  
  
  

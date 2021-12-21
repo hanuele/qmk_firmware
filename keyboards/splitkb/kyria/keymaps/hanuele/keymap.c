@@ -50,9 +50,8 @@ enum keycodes {
     SELECT_ID,
     GO_CL,
     GO_ID,
-    REPEAT,
 };
-// State for Caps word.     
+// State for Caps word.
 bool caps_word_on;
 void caps_word_enable(void);
 void caps_word_disable(void);
@@ -96,7 +95,7 @@ typedef struct {
 
 td_state_t cur_dance(qk_tap_dance_state_t *state);
 //my update routine to change rgb based on last activated mode
-void update_mode_rgb(void); 
+void update_mode_rgb(void);
 // For the x tap dance. Put it here so it can be used in any keymap
 
 void quotes_finished(qk_tap_dance_state_t *state, void *user_data);
@@ -120,20 +119,20 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * Layer 0: Base Layer
  *
  * ,-------------------------------------------.                              ,-------------------------------------------.
- * |  Play  |  p   |  u   |  j   |   c  |  q   |                              | Bnt1 |   g  |   l  |  m   |   f  |CtrlAltD|
+ * |  Play  |  p   |  u   |  j   |   c  |  q   |                              | LGUI |   g  |   l  |  m   |   f  |CtrlAltD|
  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
  * |  ESC   |  h   |i-SHFT| e-LT1| a-LT3|  O   |                              |   d  |t-LT4 |r-LT2 |n-SHFT|   s  |  Enter |
  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
- * |        |  k   |  y   |  .   |,-LT5 |  x   |  Cut |REPEAT|  |Screen|      | Bnt2 |v-LT6 |  w   |  b   |   z  |  ß de  |
+ * |        |  k   |y-CTRL|  .   |,-LT5 |  x   |  Cut | Bnt2 |  |Screen|      | ALT  |v-LT6 |  w   |b-CTRL|   z  |  ß de  |
  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
  *                        |Enpass| Find | LT7  | Copy | Bnt1 |  | Caps | Tab  | BSPC | F24  | F22  |
  *                        |      |      | SPACE|      |      |  |      |      |      |      |      |
  *                        `----------------------------------'  `----------------------------------'
   */
       [_PUQ] = LAYOUT(
-       KC_MPLY, KC_P,KC_U,KC_J,KC_C,KC_Q,                                     MY_MOUSEBTN_1,KC_G,KC_L,KC_M,KC_F,C(A(KC_DEL)),
+       KC_MPLY, KC_P,KC_U,KC_J,KC_C,KC_Q,                                     KC_LGUI,KC_G,KC_L,KC_M,KC_F,C(A(KC_DEL)),
        KC_ESC, KC_H, LSFT_T(KC_I), LT1A, LT3A, KC_O,                                     KC_D, LT4A, LT2A, RSFT_T(KC_N), KC_S,KC_ENTER,
-       _______, KC_K, KC_Z, PERIOD,LT5A,KC_X, C(KC_X), REPEAT,  LSG(KC_S),XXXXXXX, MY_MOUSEBTN_2,LT6A , KC_W, KC_B, KC_Y,KC_MINS,
+       _______, KC_K, LCTL_T(KC_Z), PERIOD,LT5A,KC_X, C(KC_X), MY_MOUSEBTN_2,  LSG(KC_S),XXXXXXX, KC_LALT,LT6A , KC_W, RCTL_T(KC_B), KC_Y,KC_MINS,
                                   C(A(KC_E)), FIND, LT7, C(KC_C), MY_MOUSEBTN_1, KC_CAPS, KC_TAB, DELETE, KC_F24, KC_F22
      ),
  /*
@@ -144,7 +143,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
   * |        |      |LSHIFT|      |MOUSE1|      |                              |W-LEFT|M-LEFT| M-UP |M-RGHT|W-RGHT|        |
   * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-  * |        |      |      |      |MOUSE2|      |      |      |  |      |      |      |W-DOWN|M-DOWN|W-RGHT|      |        |
+  * |        |      |      |      |MOUSE2|      |      |      |  |      |      |      | W-UP |M-DOWN|W-DOWN|      |        |
   * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
   *                        |      |      |      |      |      |  |      |      |      |      |      |
   *                        |      |      |      |      |      |  |      |      |      |      |      |
@@ -153,7 +152,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      [_MOUS] = LAYOUT(
        _______, _______, _______, _______, _______, _______,                                     _______, MY_MOUSEBTN_1, MY_MOUSEBTN_3, MY_MOUSEBTN_2, _______, _______,
        _______, _______, KC_LSFT, _______, MY_MOUSEBTN_1, _______,                                     KC_WH_L, KC_MS_L, KC_MS_U, KC_MS_R, KC_WH_R, _______,
-       _______, _______, _______, _______, MY_MOUSEBTN_2, _______, _______, _______, _______, XXXXXXX, _______, KC_WH_D, KC_MS_D, KC_WH_U, _______, _______,
+       _______, _______, _______, _______, MY_MOUSEBTN_2, _______, _______, _______, _______, XXXXXXX, _______, KC_WH_U, KC_MS_D, KC_WH_D, _______, _______,
                                   _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
      ),
 
@@ -163,9 +162,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   * ,-------------------------------------------.                              ,-------------------------------------------.
   * |        |      |PAGEUP|      |PAGEDW|      |                              |      |      |      |      |      |        |
   * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
-  * |        |      | LEFT |  UP  | RIGHT|      |                              |      | LGUI |      |C_S_T | RSFT |        |
+  * |        | ASL  | LEFT |  UP  | RIGHT| ASR  |                              |      | LGUI |      |C_S_T | RSFT |        |
   * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-  * |        |      | HOME | DOWN |  END |      |      |      |  |      |      |      |      |      |      |      |        |
+  * |        | ASD  | HOME | DOWN |  END | ASU  |      |      |  |      |      |      |      |      |      |      |        |
   * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
   *                        |      |      |      |      |      |  |      |      |      |      |      |
   *                        |      |      |      |      |      |  |      |      |      |      |      |
@@ -173,8 +172,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   */
      [_NAV] = LAYOUT(
        _______, _______, KC_PGUP, _______, KC_PGDOWN, _______,                                     _______, _______, _______, _______, _______, _______,
-       _______, _______, KC_LEFT, KC_UP, KC_RIGHT, _______,                                     _______, OS_CMD, _______,C_S_T(KC_TAB),KC_RSFT,_______ ,
-       _______, _______, KC_HOME, KC_DOWN, KC_END, _______, _______, _______, XXXXXXX, _______, _______, _______, _______, _______, _______, _______,
+       _______, LSA(KC_LEFT), KC_LEFT, KC_UP, KC_RIGHT, LSA(KC_RIGHT),                                     _______, KC_LGUI, _______,C_S_T(KC_TAB),KC_RSFT,_______ ,
+       _______, LSA(KC_DOWN), KC_HOME, KC_DOWN, KC_END, LSA(KC_UP), _______, _______, XXXXXXX, _______, _______, _______, _______, _______, _______, _______,
                                   _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
      ),
  /*
@@ -210,7 +209,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   *                        |      |      |   "  |      |      |  |      |      |   _  |      |      |
   *                        |      |      |      |      |      |  |      |      |      |      |      |
   *                        `----------------------------------'  `----------------------------------'
-  */
+*/
      [_LSYM] = LAYOUT(
        _______, _______, _______, _______, _______, KC_GRV,                                     _______, _______, _______, _______, _______, _______,
        _______,ALGR(KC_MINS), S(KC_7), ALGR(KC_7), ALGR(KC_0),KC_EQL,                                     _______, _______, S(KC_MINS), S(KC_1), KC_NUHS, _______,
@@ -223,7 +222,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   * ,-------------------------------------------.                              ,-------------------------------------------.
   * |        |      |      |      |      |      |                              |      |  F7  |  F8  |  F9  |  F10 |        |
   * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
-  * |        |      |      |CTLALT|      |      |                              |      |  F4  |  F5  |  F6  |  F11 |        |
+  * |        |      |      |  ALT |      |      |                              |      |  F4  |  F5  |  F6  |  F11 |        |
   * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
   * |        |      |      |      |      |      |      |      |  |      |      |      |  F1  |  F2  |  F3  |  F12 |        |
   * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
@@ -233,7 +232,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   */
      [_FUNC] = LAYOUT(
        _______, _______, _______, _______, _______, _______,                                     _______, KC_F7, KC_F8, KC_F9, KC_F10, _______,
-       _______, _______, _______,C(KC_LALT), _______, _______,                                  _______, KC_F4, KC_F5, KC_F6, KC_F11, _______,
+       _______, _______, _______,KC_LALT, _______, _______,                                  _______, KC_F4, KC_F5, KC_F6, KC_F11, _______,
        _______, _______, _______, _______, _______, _______, _______, _______, _______, XXXXXXX, _______, KC_F1, KC_F2, KC_F3, KC_F12, _______,
                                   _______, _______, _______, _______, _______, _______, S(KC_F5), KC_F12, _______, _______
      ),
@@ -263,7 +262,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   * ,-------------------------------------------.                              ,-------------------------------------------.
   * |        |      |      | Manic|      |      |                              |      |CloseT|Go CL | ReoT |      | RESET  |
   * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
-  * |        | ESC  | UNDO |      | REDO |      |                              | Go ID| TabL |Sel ID| TabR |DupTab| Mute   |
+  * |        | ESC  | UNDO |  QS  | REDO |      |                              | Go ID| TabL |Sel ID| TabR |DupTab| Mute   |
   * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
   * |   TO1  |  TO0 |FindNe|      |FindPr|      |      |      |  |      |      |      | LAST |Go URL| NEXT |      |        |
   * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
@@ -273,7 +272,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   */
      [_AACC] = LAYOUT(
        _______, _______, _______, A(C(S(KC_W))), _______, _______,                                      _______,C(KC_W),GO_CL , C(S(KC_T)),_______, RESET,
-       _______, KC_ESC, C(KC_Y), _______, C(KC_Z), _______,                                      GO_ID, S(C(KC_TAB)), SELECT_ID, C(KC_TAB), C(S(KC_K)), KC_MUTE,
+       _______, KC_ESC, C(KC_Y), LGUI(C(KC_J)), C(KC_Z), _______,                                      GO_ID, S(C(KC_TAB)), SELECT_ID, C(KC_TAB), C(S(KC_K)), KC_MUTE,
        TO(_MOUS), TO(_PUQ),_______, LSG(KC_S), C(KC_G), _______, _______, _______, _______, XXXXXXX, _______, KC_WWW_BACK, GO_URL, KC_WWW_FORWARD, _______, _______,
                                   _______, _______, KC_TAB, _______, _______, _______, _______, _______, _______, _______
      )
@@ -324,7 +323,7 @@ void pointing_device_task() {
     uint8_t scale = 4;
     if (trackball_get_interrupt() && (!tb_timer || timer_elapsed(tb_timer) > TRACKBALL_TIMEOUT)) {
         tb_timer = timer_read() | 1;
-        
+
         trackball_state_t state = trackball_get_state();
 
         if (state.button_triggered) {
@@ -332,11 +331,18 @@ void pointing_device_task() {
                 mouse.buttons |= MOUSE_BTN1;
             } else {
                 mouse.buttons &= ~MOUSE_BTN1;
-            }  
+            }
             pointing_device_set_report(mouse);
             pointing_device_send();
         } else {
-            if (layer_state_is(_LSYM) || layer_state_is(_RSYM)) {
+            if (layer_state_is(_FUNC) || layer_state_is(_NUMB)) {
+                h_offset -= state.x * state.x * SIGN(state.x) ;
+                if (!is_trackball_active) {
+                    is_trackball_active = true;
+                    tap_code16(KC_F22);
+                }
+                mouse_auto_layer_timer = timer_read();
+            } else if (layer_state_is(_LSYM) || layer_state_is(_RSYM)) {
                 h_offset += state.x;
                 v_offset -= state.y;
             } else if (layer_state_is(_AACC)) {
@@ -348,12 +354,12 @@ void pointing_device_task() {
                 }
                 mouse_auto_layer_timer = timer_read();
             } else if ((state.x || state.y) && !state.button_down) {
-              
+
                 x_offset += state.x * state.x * SIGN(state.x) * scale;
                 y_offset += state.y * state.y * SIGN(state.y) * scale;
 
             }
-            
+
         }
 
     }
@@ -391,35 +397,6 @@ void caps_word_disable(void) {
 // Example: GET_TAP_KC(MT(MOD_RSFT, KC_E)) == KC_E
 #define GET_TAP_KC(dual_role_key) dual_role_key & 0xFF
 
-uint16_t last_keycode = KC_NO;
-uint8_t last_modifier = 0;
-void process_repeat_key(uint16_t keycode, const keyrecord_t *record) {
-    if (keycode != REPEAT) {
-        last_modifier = oneshot_mod_state > mod_state ? oneshot_mod_state : mod_state;
-        switch (keycode) {
-            case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
-            case QK_MOD_TAP ... QK_MOD_TAP_MAX:
-                if (record->event.pressed) {
-                    last_keycode = GET_TAP_KC(keycode);
-                }
-                break;
-            default:
-                if (record->event.pressed) {
-                    last_keycode = keycode;
-                }
-                break;
-        }
-    } else { // keycode == REPEAT
-        if (record->event.pressed) {
-            register_mods(last_modifier);
-            register_code16(last_keycode);
-        } else {
-            unregister_code16(last_keycode);
-            unregister_mods(last_modifier);
-        }
-    }
-}
-
 void process_caps_word(uint16_t keycode, const keyrecord_t *record) {
     // Update caps word state
     if (caps_word_on) {
@@ -435,7 +412,7 @@ void process_caps_word(uint16_t keycode, const keyrecord_t *record) {
                 break;
         }
 
-        switch (keycode) {  
+        switch (keycode) {
             // Keycodes to shift
             case KC_A ... KC_Z:
                 if (record->event.pressed) {caps_word_enable();}
@@ -462,7 +439,7 @@ void process_caps_word(uint16_t keycode, const keyrecord_t *record) {
         }
     }
 }
-   
+
 #ifdef COMBO_ENABLE
 enum combo_events {
   ZC_DF0,
@@ -471,7 +448,10 @@ enum combo_events {
   ZC_ENTER1,
   ZC_MOUSE1DUB,
   ZC_MOUSE1P,
+  ZC_MOUSE1,
+  ZC_MOUSE2,
   ZC_MOUSE3,
+  ZC_MOUSE32,
   ZC_WINPASTE,
   ZC_PASTE,
   ZC_COMBO,
@@ -489,23 +469,27 @@ enum combo_events {
   ZC_PAREN,
   ZC_BRACE,
   ZC_SQUARE,
+  ZC_SZ,
 };
 const uint16_t PROGMEM df1_combo[] = {PERIOD,LT5A, COMBO_END};
 const uint16_t PROGMEM df0_combo[] = {PERIOD,MY_MOUSEBTN_2, COMBO_END};
 const uint16_t PROGMEM enter_combo[] = {LT6A , KC_W, COMBO_END};
 const uint16_t PROGMEM enter1_combo[] = {KC_WH_D, KC_MS_D, COMBO_END};
-const uint16_t PROGMEM mouse3_combo[] = {LT7, LT3A, COMBO_END};
-const uint16_t PROGMEM mouse1dub_combo[] = {LT7, LT5A, COMBO_END};
-const uint16_t PROGMEM mouse1p_combo[] = {LT7, PERIOD, COMBO_END};
+const uint16_t PROGMEM mouse1_combo[] = {LT4A, LT6A, COMBO_END};
+const uint16_t PROGMEM mouse2_combo[] = {LT2A, KC_W, COMBO_END};
+const uint16_t PROGMEM mouse3_combo[] = {RSFT_T(KC_N), RCTL_T(KC_B), COMBO_END};
+const uint16_t PROGMEM mouse32_combo[] = {MY_MOUSEBTN_1, MY_MOUSEBTN_2, COMBO_END};
+const uint16_t PROGMEM mouse1dub_combo[] = {KC_L, LT2A, COMBO_END};
+const uint16_t PROGMEM mouse1p_combo[] = {RSFT_T(KC_N), KC_M, COMBO_END};
 const uint16_t PROGMEM oneshotmod_rsft[] = {LT4A, LT2A, COMBO_END};
 const uint16_t PROGMEM oneshotmod_lsft[] = {LT1A, LT3A, COMBO_END};
-const uint16_t PROGMEM oneshotmod_rctrl[] = {KC_W, KC_B, COMBO_END};
-const uint16_t PROGMEM oneshotmod_lctrl[] = {KC_Z, PERIOD, COMBO_END};
+const uint16_t PROGMEM oneshotmod_rctrl[] = {KC_W, RCTL_T(KC_B), COMBO_END};
+const uint16_t PROGMEM oneshotmod_lctrl[] = {LCTL_T(KC_Z), PERIOD, COMBO_END};
 const uint16_t PROGMEM oneshotmod_ralt[] = {LT4A, RSFT_T(KC_N), COMBO_END};
 const uint16_t PROGMEM oneshotmod_lalt[] = {LSFT_T(KC_I), LT3A, COMBO_END};
 const uint16_t PROGMEM winpaste_combo[] = {LSG(KC_S),KC_CAPS, COMBO_END};
 const uint16_t PROGMEM paste_combo[] = {C(KC_X), C(KC_C), COMBO_END};
-const uint16_t PROGMEM caps_combo [] = {KC_U, KC_J, COMBO_END};
+const uint16_t PROGMEM caps_combo [] = {KC_J, KC_C, COMBO_END};
 const uint16_t PROGMEM ae_combo[] = {LT5A, LT3A, COMBO_END};
 const uint16_t PROGMEM oe_combo[] = {KC_O, KC_X, COMBO_END};
 const uint16_t PROGMEM ue_combo[] = {LT1A, PERIOD, COMBO_END};
@@ -514,14 +498,18 @@ const uint16_t PROGMEM rsym_combo[] = {LSFT_T(KC_I), LT1A, COMBO_END};
 const uint16_t PROGMEM paren_combo[] = {S(KC_8), S(KC_9), COMBO_END};
 const uint16_t PROGMEM brace_combo[] = {ALGR(KC_7), ALGR(KC_0), COMBO_END};
 const uint16_t PROGMEM square_combo[] = {ALGR(KC_8), ALGR(KC_9), COMBO_END};
+const uint16_t PROGMEM sz_combo[] = {KC_S, KC_Y, COMBO_END};
 combo_t key_combos[COMBO_COUNT] = {
   [ZC_DF1] = COMBO_ACTION(df1_combo),
   [ZC_DF0] = COMBO_ACTION(df0_combo),
   [ZC_ENTER] = COMBO_ACTION(enter_combo),
-  [ZC_ENTER1] = COMBO_ACTION(enter1_combo), 
+  [ZC_ENTER1] = COMBO_ACTION(enter1_combo),
   [ZC_MOUSE1DUB] = COMBO_ACTION(mouse1dub_combo),
   [ZC_MOUSE1P] = COMBO_ACTION(mouse1p_combo),
+  [ZC_MOUSE1] = COMBO_ACTION(mouse1_combo),
+  [ZC_MOUSE2] = COMBO_ACTION(mouse2_combo),
   [ZC_MOUSE3] = COMBO_ACTION(mouse3_combo),
+  [ZC_MOUSE32] = COMBO_ACTION(mouse32_combo),
   [ZC_WINPASTE] = COMBO_ACTION(winpaste_combo),
   [ZC_PASTE] = COMBO_ACTION(paste_combo),
   [ZC_COMBO] = COMBO_ACTION(caps_combo),
@@ -539,18 +527,24 @@ combo_t key_combos[COMBO_COUNT] = {
   [ZC_PAREN] = COMBO_ACTION(paren_combo),
   [ZC_BRACE] = COMBO_ACTION(brace_combo),
   [ZC_SQUARE] = COMBO_ACTION(square_combo),
+  [ZC_SZ] = COMBO_ACTION(sz_combo),
 };
-    
-//for key press simulation 
+
+//for key press simulation
 keyrecord_t pressed_key = {{{0,0},true,0}, {0,0,0,0,0}};
 keyrecord_t released_key = {{{0,0},false,0}, {0,0,0,0,0}};
 
 void process_combo_event(uint16_t combo_index, bool pressed) {
 #ifdef PIMORONI_TRACKBALL_ENABLE
-  report_mouse_t currentReport = {};
   mod_state = get_mods();
 #endif
   switch(combo_index) {
+    case ZC_SZ:
+      if (pressed) {
+        register_code(KC_MINS);
+      }else{
+        unregister_code(KC_MINS);
+      }
     case ZC_DF0:
       if (pressed) {
         layer_move(_PUQ);
@@ -593,21 +587,15 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
         tap_code(KC_BTN1);tap_code(KC_BTN1);tap_code16(C(KC_V));
       }
       break;
+    case ZC_MOUSE1:
+      pressed?register_code(KC_BTN1):unregister_code(KC_BTN1);
+      break;
+    case ZC_MOUSE2:
+      pressed?register_code(KC_BTN2):unregister_code(KC_BTN2);
+      break;
     case ZC_MOUSE3:
-        if(!layer_state_is(_PUQ)||(mod_state & MOD_MASK_SHIFT)){
-            pressed?register_code(KC_BTN3):unregister_code(KC_BTN3);
-        }else{
-            #ifdef PIMORONI_TRACKBALL_ENABLE
-            currentReport = pointing_device_get_report();
-            if (pressed) {
-                currentReport.buttons = MOUSE_BTN1;
-            }
-            else {
-                currentReport.buttons &= ~MOUSE_BTN1;
-            }
-            pointing_device_set_report(currentReport);
-            #endif
-            }
+    case ZC_MOUSE32:
+      pressed?register_code(KC_BTN3):unregister_code(KC_BTN3);
       break;
     case ZC_WINPASTE:
       if (pressed) {
@@ -666,9 +654,9 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
         break;
     case ZC_OSRALT:
         if (pressed) {
-            update_oneshot(&os_alt_state, KC_LALT, OS_ALT,OS_ALT, &pressed_key);
+            update_oneshot(&os_cmd_state, KC_LGUI, OS_CMD,OS_CMD, &pressed_key);
         }else{
-            update_oneshot(&os_alt_state, KC_LALT, OS_ALT,OS_ALT, &released_key);
+            update_oneshot(&os_cmd_state, KC_LGUI, OS_CMD,OS_CMD, &released_key);
         }
         break;
     case ZC_AE:
@@ -678,7 +666,7 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
         }else{
             tap_code(KC_QUOT);
             clear_weak_mods();
-            unregister_mods(MOD_BIT(KC_LSFT));         
+            unregister_mods(MOD_BIT(KC_LSFT));
         }
       }else{
         unregister_code(KC_QUOT);
@@ -691,7 +679,7 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
         }else{
             tap_code(KC_SCLN);
             clear_weak_mods();
-            unregister_mods(MOD_BIT(KC_LSFT));         
+            unregister_mods(MOD_BIT(KC_LSFT));
         }
       }else{
         unregister_code(KC_SCLN);
@@ -704,7 +692,7 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
         }else{
             tap_code(KC_LBRC);
             clear_weak_mods();
-            unregister_mods(MOD_BIT(KC_LSFT));         
+            unregister_mods(MOD_BIT(KC_LSFT));
         }
       }else{
         unregister_code(KC_LBRC);
@@ -712,7 +700,7 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
       break;
     case ZC_PAREN:
         if (pressed) {
-            SEND_STRING("()" SS_TAP(X_LEFT)); 
+            SEND_STRING("()" SS_TAP(X_LEFT));
         }
         break;
     case ZC_SQUARE:
@@ -752,7 +740,7 @@ bool is_oneshot_ignored_key(uint16_t keycode) {
         case OS_SHFT:
         case OS_CTRL:
         case OS_ALT:
-        case OS_CMD:        
+        case OS_CMD:
             return true;
         default:
             return false;
@@ -761,11 +749,12 @@ bool is_oneshot_ignored_key(uint16_t keycode) {
 
 //main routine once a key is pressed.
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    
+
     update_oneshot(&os_shft_state, KC_LSFT, OS_SHFT,keycode, record);
     update_oneshot(&os_ctrl_state, KC_LCTL, OS_CTRL,keycode, record);
     update_oneshot(&os_alt_state, KC_LALT, OS_ALT,keycode, record);
     update_oneshot(&os_cmd_state, KC_LGUI, OS_CMD,keycode, record);
+
     #ifdef PIMORONI_TRACKBALL_ENABLE
     report_mouse_t currentReport = {};
     #endif
@@ -774,7 +763,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case CAPS_WORD:
             // Toggle `caps_word_on`
             if (record->event.pressed) {
-                if (caps_word_on) {caps_word_disable(); return false;} 
+                if (caps_word_on) {caps_word_disable(); return false;}
                 else {caps_word_enable(); return false;}
             }
             break;
@@ -820,25 +809,21 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             break;
     }
-    update_mode_rgb();
-    return true;
-}
-
-void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
-    process_caps_word(keycode, record);
-    process_repeat_key(keycode, record);
-    
-}
-void update_mode_rgb(void) {
+      #ifdef RGBLIGHT_LAYERS
     uint8_t mods;
-    #ifdef RGBLIGHT_LAYERS
     mods = mod_config(get_mods());
     rgblight_set_layer_state(8, mods & MOD_MASK_SHIFT);
     rgblight_set_layer_state(9, mods & MOD_MASK_CTRL);
     rgblight_set_layer_state(10, mods & MOD_MASK_ALT);
     rgblight_set_layer_state(11, mods & MOD_MASK_GUI);
-    #endif    
+    #endif
+    return true;
 }
+
+void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
+    process_caps_word(keycode, record);
+}
+
 
 void matrix_scan_user(void) {
     if (is_alt_tab_active) {
@@ -853,8 +838,8 @@ void matrix_scan_user(void) {
             tap_code16(KC_F22);
             is_trackball_active = false;
         }
-    }    
-#endif  
+    }
+#endif
 
 }
 
@@ -901,29 +886,31 @@ void oled_task_user(void) {
     if (is_keyboard_master()) {
         render_status();
     } else {
-       
+
     }
 }
 #endif
 
+
 #ifdef RGBLIGHT_LAYERS
-const rgblight_segment_t PROGMEM neo2_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_MAGENTA});
-const rgblight_segment_t PROGMEM mous_layers[] = RGBLIGHT_LAYER_SEGMENTS({10, 20, HSV_BLUE});
+const rgblight_segment_t PROGMEM neo2_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_RED});
+const rgblight_segment_t PROGMEM mous_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_BLUE});
 const rgblight_segment_t PROGMEM nav_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_BLUE});
-const rgblight_segment_t PROGMEM lsym_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 9, HSV_GREEN});
-const rgblight_segment_t PROGMEM rsym_layers[] = RGBLIGHT_LAYER_SEGMENTS({10, 20, HSV_GREEN});
-const rgblight_segment_t PROGMEM func_layers[] = RGBLIGHT_LAYER_SEGMENTS({10, 20, HSV_RED});
-const rgblight_segment_t PROGMEM numb_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 9, HSV_RED});
+const rgblight_segment_t PROGMEM lsym_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_GREEN});
+const rgblight_segment_t PROGMEM rsym_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_GREEN});
+const rgblight_segment_t PROGMEM func_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_MAGENTA});
+const rgblight_segment_t PROGMEM numb_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_MAGENTA});
 const rgblight_segment_t PROGMEM aacc_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_WHITE});
 
 const rgblight_segment_t PROGMEM shift_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_GOLD});
 const rgblight_segment_t PROGMEM ctrl_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_ORANGE});
 const rgblight_segment_t PROGMEM alt_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_SPRINGGREEN});
 const rgblight_segment_t PROGMEM gui_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_TURQUOISE});
+const rgblight_segment_t PROGMEM capslock_layers[] = RGBLIGHT_LAYER_SEGMENTS({0, 20, HSV_CORAL});
 
 const rgblight_segment_t* const PROGMEM my_rgb_layers[] = RGBLIGHT_LAYERS_LIST(
     neo2_layers,
-    mous_layers, 
+    mous_layers,
     nav_layers,
     rsym_layers,
     lsym_layers,
@@ -933,8 +920,10 @@ const rgblight_segment_t* const PROGMEM my_rgb_layers[] = RGBLIGHT_LAYERS_LIST(
     shift_layers,
     ctrl_layers,
     alt_layers,
-    gui_layers
+    gui_layers,
+    capslock_layers
 );
+
 
 void keyboard_post_init_keymap(void) {
     rgblight_layers = my_rgb_layers;
@@ -943,11 +932,11 @@ void keyboard_post_init_keymap(void) {
 #endif
 
 void keyboard_post_init_user(void) {
-    rgblight_sethsv_noeeprom(HSV_MAGENTA);
+    rgblight_sethsv_noeeprom(HSV_RED);
 #ifdef RGBLIGHT_LAYERS
     rgblight_layers = my_rgb_layers;
 #else
-    rgblight_sethsv_noeeprom(HSV_MAGENTA);
+    rgblight_sethsv_noeeprom(HSV_RED);
 #endif
 #ifdef PIMORONI_TRACKBALL_ENABLE
     rgb_hue = rgblight_get_hue();
@@ -956,25 +945,18 @@ void keyboard_post_init_user(void) {
     trackball_set_hsv(rgb_hue, rgb_sat, rgb_brightness);
 #endif
 }
-layer_state_t default_layer_state_set_user(layer_state_t state) {
-    #ifdef RGBLIGHT_LAYERS
-    rgblight_set_layer_state(0, layer_state_cmp(state, _PUQ));
-    rgblight_set_layer_state(1, layer_state_cmp(state, _MOUS));
-    #endif
 
-    return state;
-}
 layer_state_t layer_state_set_user(layer_state_t state) {
 
 #ifdef RGBLIGHT_LAYERS
-    for (int i = _PUQ; i < 12; i++) {
+    for (int i = _PUQ; i < 8; i++) {
         rgblight_set_layer_state(i, layer_state_cmp(state, i));
     }
 #endif
 #ifdef PIMORONI_TRACKBALL_ENABLE
         switch (get_highest_layer(state | default_layer_state)) {
         case _PUQ:
-            trackball_set_rgbw(rgb_brightness, 0, rgb_brightness,0);
+            trackball_set_rgbw(rgb_brightness,0,  0, 0);
             break;
         case _MOUS:
             trackball_set_rgbw(0, 0, rgb_brightness,0);
@@ -989,10 +971,10 @@ layer_state_t layer_state_set_user(layer_state_t state) {
             trackball_set_rgbw(0, rgb_brightness, 0, 0);
             break;
         case _FUNC:
-            trackball_set_rgbw(rgb_brightness,0,  0, 0);
+            trackball_set_rgbw(rgb_brightness, 0, rgb_brightness,0);
             break;
         case _NUMB:
-            trackball_set_rgbw(rgb_brightness,0,  0, 0);
+            trackball_set_rgbw(rgb_brightness, 0, rgb_brightness,0);
             break;
         case _AACC:
             trackball_set_rgbw(0, 0, 0, rgb_brightness);
@@ -1005,6 +987,12 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 
     return state;
 }
+#ifdef RGBLIGHT_LAYERS
+bool led_update_user(led_t led_state) {
+    rgblight_set_layer_state(12, led_state.caps_lock);
+    return true;
+}
+#endif
 
 #ifdef ENCODER_ENABLE
 bool encoder_update_user(uint8_t index, bool clockwise){
@@ -1050,7 +1038,7 @@ bool encoder_update_user(uint8_t index, bool clockwise){
         }
     } else if (index == 1) {
         switch (biton32(layer_state)) {
-            case _PUQ:
+            case _AACC:
                 // Switch between windows on Windows with alt tab.
                 if (clockwise) {
                     tap_code16(S(KC_TAB));
@@ -1062,14 +1050,14 @@ bool encoder_update_user(uint8_t index, bool clockwise){
                     alt_tab_timer = timer_read();
                     tap_code16(KC_TAB);
                 }
-            case _MOUS:
+            case _PUQ:
                 if (clockwise) {
                     tap_code16(C(S(KC_TAB)));
                 } else {
                     tap_code16(C(KC_TAB));
                 }
                 break;
-            case _AACC:
+            case _MOUS:
                 if (clockwise) {
                     tap_code16(KC_MPRV);
                 } else {
@@ -1126,7 +1114,7 @@ void quotes_finished(qk_tap_dance_state_t *state, void *user_data) {
         case TD_UNKNOWN: break;
         case TD_NONE: break;
     }
-}              
+}
 
 void quotes_reset(qk_tap_dance_state_t *state, void *user_data) {
     switch (xtap_state.state) {
@@ -1145,8 +1133,8 @@ void quotes_reset(qk_tap_dance_state_t *state, void *user_data) {
 void del_finished(qk_tap_dance_state_t *state, void *user_data) {
     xtap_state.state = cur_dance(state);
     mod_state = get_mods();
-    switch (xtap_state.state) { 
-        case TD_SINGLE_HOLD: 
+    switch (xtap_state.state) {
+        case TD_SINGLE_HOLD:
             if(layer_state_is(_AACC)) {}
             else {layer_on(_AACC);}
             break;
@@ -1162,7 +1150,7 @@ void del_finished(qk_tap_dance_state_t *state, void *user_data) {
                 set_mods(mod_state);
             }
             break;
-        case TD_DOUBLE_TAP: 
+        case TD_DOUBLE_TAP:
             //backward and forward delete word
             if (!(mod_state & MOD_MASK_SHIFT)) {
                 register_code16(C(KC_BSPC));
@@ -1174,7 +1162,7 @@ void del_finished(qk_tap_dance_state_t *state, void *user_data) {
             }
             break;
         case TD_DOUBLE_HOLD: break;
-        case TD_DOUBLE_SINGLE_TAP: 
+        case TD_DOUBLE_SINGLE_TAP:
             if (!(mod_state & MOD_MASK_SHIFT)) {
                 tap_code(KC_BSPC); register_code(KC_BSPC);
             } else {
@@ -1208,14 +1196,14 @@ void find_finished(qk_tap_dance_state_t *state, void *user_data) {
     xtap_state.state = cur_dance(state);
     switch (xtap_state.state) {
         case TD_SINGLE_TAP: register_code16(C(KC_F));break;
-        case TD_DOUBLE_TAP: register_code16(C(S(KC_NUBS)));break;//custom global search in my dev env 
+        case TD_DOUBLE_TAP: register_code16(C(S(KC_NUBS)));break;//custom global search in my dev env
         case TD_SINGLE_HOLD: tap_code16(C(KC_C));tap_code16(C(S(KC_NUBS)));tap_code16(C(KC_V));tap_code(KC_ENTER);break;//custom global search for selected text
         case TD_DOUBLE_HOLD: tap_code16(C(KC_C));tap_code16(C(KC_F));tap_code16(C(KC_V));tap_code(KC_ENTER);break;//search for selected text
         case TD_DOUBLE_SINGLE_TAP: break;
         case TD_UNKNOWN: break;
         case TD_NONE: break;
     }
-}              
+}
 
 void find_reset(qk_tap_dance_state_t *state, void *user_data) {
     switch (xtap_state.state) {

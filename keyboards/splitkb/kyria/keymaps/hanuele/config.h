@@ -52,7 +52,7 @@
 #    define RGBLIGHT_HUE_STEP  8
 #    define RGBLIGHT_SAT_STEP  8
 #    define RGBLIGHT_VAL_STEP  8
-#    define RGBLIGHT_SPLIT
+//#    define RGBLIGHT_SPLIT
   #define RGBLIGHT_DEFAULT_VAL 200
   #define RGBLIGHT_LAYERS
   #define RGBLIGHT_MAX_LAYER 16
@@ -60,7 +60,6 @@
 
 // If you are using an Elite C rev3 on the slave side, uncomment the lines below:
 //#define SPLIT_USB_DETECT
-//#define SPLIT_USB_TIMEOUT 1000
 
 
 // EC11K encoders have a different resolution than other EC11 encoders.
@@ -77,7 +76,7 @@
 #define TAP_CODE_DELAY 10
 
 #define COMBO_TERM 50
-#define COMBO_COUNT 24
+#define COMBO_COUNT 28
 //comment that out if your trackball is on the left side
 #define TRACKBALL_RIGHT
 

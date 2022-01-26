@@ -264,7 +264,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
   * |        | ESC  | UNDO |  QS  | REDO |      |                              | Go ID| TabL |Sel ID| TabR |DupTab| Mute   |
   * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-  * |   TO1  |  TO0 |FindNe|      |FindPr|      |      |      |  |      |      |      | LAST |Go URL| NEXT |      |        |
+  * |   TO1  |  TO0 |FindNe|Screen|FindPr|      |      |      |  |      |      |      | LAST |Go URL| NEXT |      |        |
   * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
   *                        |      |      | TAB  |      |      |  |      |      |      |      |      |
   *                        |      |      |      |      |      |  |      |      |      |      |      |
@@ -273,7 +273,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      [_AACC] = LAYOUT(
        _______, _______, _______, A(C(S(KC_W))), _______, _______,                                      _______,C(KC_W),GO_CL , C(S(KC_T)),_______, RESET,
        _______, KC_ESC, C(KC_Y), LGUI(C(KC_J)), C(KC_Z), _______,                                      GO_ID, S(C(KC_TAB)), SELECT_ID, C(KC_TAB), C(S(KC_K)), KC_MUTE,
-       TO(_MOUS), TO(_PUQ),_______, LSG(KC_S), C(KC_G), _______, _______, _______, _______, XXXXXXX, _______, KC_WWW_BACK, GO_URL, KC_WWW_FORWARD, _______, _______,
+       TO(_MOUS), TO(_PUQ),C(S(KC_G)), LSG(KC_S), C(KC_G), _______, _______, _______, _______, XXXXXXX, _______, KC_WWW_BACK, GO_URL, KC_WWW_FORWARD, _______, _______,
                                   _______, _______, KC_TAB, _______, _______, _______, _______, _______, _______, _______
      )
 };
@@ -424,7 +424,7 @@ void process_caps_word(uint16_t keycode, const keyrecord_t *record) {
             case KC_PIPE:
             case CAPS_WORD:
                 // If chording mods, disable caps word
-                if (record->event.pressed && (get_mods() != MOD_LSFT) && (get_mods() != 0)) {caps_word_disable();}
+                if (record->event.pressed && (get_mods() != MOD_LSFT) && (get_mods() != MOD_LCTL)&& (get_mods() != 0)) {caps_word_disable();}
                 break;
             case KC_SPC:
                 if (record->event.pressed) {
@@ -999,6 +999,37 @@ bool encoder_update_user(uint8_t index, bool clockwise){
     mod_state = get_mods();
     if (index == 0) {
         switch (biton32(layer_state)) {
+            case _PUQ:
+                if (clockwise) {
+                    tap_code16(C(S(KC_TAB)));
+                } else {
+                    tap_code16(C(KC_TAB));
+                }
+                break;
+            case _NAV:
+                // Volume control.
+                if (clockwise) {
+                    tap_code(KC_VOLU);
+                } else {
+                    tap_code(KC_VOLD);
+                }
+                break;
+            case _LSYM:
+                // Codemirror find next / find previous
+                if (clockwise) {
+                    tap_code16(C(S(KC_G)));
+                } else {
+                    tap_code16(C(KC_G));
+                }
+                break;
+            case _NUMB:
+                // Set teams window / reset teams window.
+                if (clockwise) {
+                    tap_code16(S(KC_F24));
+                } else {
+                    tap_code16(C(KC_F24));
+                }
+                break;
             case _AACC:
                 // History scrubbing.
                 if (clockwise) {
@@ -1007,14 +1038,7 @@ bool encoder_update_user(uint8_t index, bool clockwise){
                     tap_code16(C(KC_Z));
                 }
                 break;
-            case _LSYM:
-                if (clockwise) {
-                    tap_code16(C(S(KC_G)));
-                } else {
-                    tap_code16(C(KC_G));
-                }
-                break;
-            case _PUQ:
+            default:
                 // Volume control.
                 if (clockwise) {
                     tap_code(KC_VOLU);
@@ -1022,54 +1046,56 @@ bool encoder_update_user(uint8_t index, bool clockwise){
                     tap_code(KC_VOLD);
                 }
                 break;
-            default:
-                // Switch between windows on Windows with alt tab.
-                if (clockwise) {
-                    tap_code16(S(KC_TAB));
-                } else {
-                    if (!is_alt_tab_active) {
-                        is_alt_tab_active = true;
-                        register_code(KC_LALT);
-                    }
-                    alt_tab_timer = timer_read();
-                    tap_code16(KC_TAB);
-                }
-                break;
         }
     } else if (index == 1) {
         switch (biton32(layer_state)) {
-            case _AACC:
-                // Switch between windows on Windows with alt tab.
-                if (clockwise) {
-                    tap_code16(S(KC_TAB));
-                } else {
-                    if (!is_alt_tab_active) {
-                        is_alt_tab_active = true;
-                        register_code(KC_LALT);
-                    }
-                    alt_tab_timer = timer_read();
-                    tap_code16(KC_TAB);
-                }
             case _PUQ:
+            // Page Up / Page Down
                 if (clockwise) {
-                    tap_code16(C(S(KC_TAB)));
+                    tap_code16(KC_PGUP);
                 } else {
-                    tap_code16(C(KC_TAB));
+                    tap_code16(KC_PGDOWN);
                 }
                 break;
             case _MOUS:
+            // Play next
                 if (clockwise) {
                     tap_code16(KC_MPRV);
                 } else {
                     tap_code16(KC_MNXT);
                 }
                 break;
-            default:
+            case _RSYM:
             // Zoom
                 if (!clockwise) {
                     tap_code16(C(KC_PPLS));
                 } else {
                     tap_code16(C(KC_PMNS));
+                }
+                break;
+            case _FUNC:
+                // Mute / Video.
+                if (clockwise) {
+                    tap_code16(C(S(KC_O)));
+                } else {
+                    tap_code16(C(S(KC_M)));
+                }
+                break;
+            case _AACC:
+                if (clockwise) {
+                    tap_code16(KC_F22);
+                } else {
+                    tap_code16(KC_F24);
+                }
+                break;
+
+
+            default:
+                // Volume control.
+                if (clockwise) {
+                    tap_code(KC_VOLU);
+                } else {
+                    tap_code(KC_VOLD);
                 }
                 break;
         }

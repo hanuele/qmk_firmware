@@ -1009,9 +1009,9 @@ bool encoder_update_user(uint8_t index, bool clockwise){
             case _NAV:
                 // Volume control.
                 if (clockwise) {
-                    tap_code(KC_VOLU);
-                } else {
                     tap_code(KC_VOLD);
+                } else {
+                    tap_code(KC_VOLU);
                 }
                 break;
             case _LSYM:
@@ -1025,9 +1025,9 @@ bool encoder_update_user(uint8_t index, bool clockwise){
             case _NUMB:
                 // Set teams window / reset teams window.
                 if (clockwise) {
-                    tap_code16(S(KC_F24));
-                } else {
                     tap_code16(C(KC_F24));
+                } else {
+                    tap_code16(S(KC_F24));
                 }
                 break;
             case _AACC:
@@ -1041,9 +1041,9 @@ bool encoder_update_user(uint8_t index, bool clockwise){
             default:
                 // Volume control.
                 if (clockwise) {
-                    tap_code(KC_VOLU);
-                } else {
                     tap_code(KC_VOLD);
+                } else {
+                    tap_code(KC_VOLU);
                 }
                 break;
         }

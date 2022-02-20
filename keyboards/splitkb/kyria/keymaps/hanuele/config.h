@@ -1,4 +1,4 @@
-/* Copyright 2019 Thomas Baart <thomas@splitkb.com>
+ /* Copyright 2019 Thomas Baart <thomas@splitkb.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@
 // EC11K encoders have a different resolution than other EC11 encoders.
 // When using the default resolution of 4, if you notice your encoder skipping
 // every other tick, lower the resolution to 2.
-#define ENCODER_RESOLUTION 4
+#define ENCODER_RESOLUTION 2
 
 #define TAPPING_TERM 175
 #define PERMISSIVE_HOLD
